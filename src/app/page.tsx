@@ -4,7 +4,7 @@
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
 import { cn } from "@/lib/utils"
-import { apiClient, type ChatMessage, type Session, type UploadResponse, type Document, type SourceSnippet } from "@/lib/api"
+import { apiClient, type Session, type Document, type SourceSnippet } from "@/lib/api"
 
 // Simple inline icons (no external dependency)
 function MenuIcon(props: React.SVGProps<SVGSVGElement>) {
