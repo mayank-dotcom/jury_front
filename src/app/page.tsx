@@ -4,7 +4,7 @@
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
 import { cn } from "@/lib/utils"
-import { apiClient, type Session, type Document, type SourceSnippet } from "@/lib/api"
+import { apiClient, type Session, type Document, type SourceSnippet, type RequestMetrics } from "@/lib/api"
 
 // Simple inline icons (no external dependency)
 function MenuIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -114,6 +114,32 @@ function TrashIcon(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   )
 }
+function ClockIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" {...props}>
+      <circle cx="12" cy="12" r="10" strokeWidth="2" />
+      <polyline points="12,6 12,12 16,14" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+function DollarIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" {...props}>
+      <line x1="12" y1="1" x2="12" y2="23" strokeWidth="2" strokeLinecap="round" />
+      <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+function HashIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" {...props}>
+      <line x1="4" y1="9" x2="20" y2="9" strokeWidth="2" strokeLinecap="round" />
+      <line x1="4" y1="15" x2="20" y2="15" strokeWidth="2" strokeLinecap="round" />
+      <line x1="10" y1="3" x2="8" y2="21" strokeWidth="2" strokeLinecap="round" />
+      <line x1="16" y1="3" x2="14" y2="21" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  )
+}
 
 type Message = {
   id: string
@@ -129,6 +155,7 @@ type Message = {
     rerankPosition?: number;
     isReranked: boolean;
   }>
+  metrics?: RequestMetrics
 }
 
 export default function Page() {
@@ -281,7 +308,8 @@ export default function Page() {
         timestamp: new Date(),
         citations: response.citations,
         sourceSnippets: response.sourceSnippets,
-        searchResults: response.searchResults
+        searchResults: response.searchResults,
+        metrics: response.metrics
       }
 
       setMessages(prev => [...prev, assistantMessage])
@@ -526,7 +554,7 @@ export default function Page() {
                 </div>
               ) : (
                 messages.map((m) => (
-                  <MessageBubble key={m.id} role={m.role} isCode={m.isCode} content={m.content} citations={m.citations} sourceSnippets={m.sourceSnippets} searchResults={m.searchResults} />
+                  <MessageBubble key={m.id} role={m.role} isCode={m.isCode} content={m.content} citations={m.citations} sourceSnippets={m.sourceSnippets} searchResults={m.searchResults} metrics={m.metrics} />
                 ))
               )}
               {isLoading && (
@@ -764,6 +792,7 @@ function MessageBubble({
   citations,
   sourceSnippets,
   searchResults,
+  metrics,
 }: {
   role: "user" | "assistant"
   content: string
@@ -776,10 +805,12 @@ function MessageBubble({
     rerankPosition?: number;
     isReranked: boolean;
   }>
+  metrics?: RequestMetrics
 }) {
   const isUser = role === "user"
   const [showSearchDetails, setShowSearchDetails] = useState(false)
   const [showSourceSnippets, setShowSourceSnippets] = useState(false)
+  const [showMetrics, setShowMetrics] = useState(false)
   
   // Function to render content with clickable citations
   const renderContentWithCitations = (text: string) => {
@@ -852,11 +883,23 @@ function MessageBubble({
         {searchResults && searchResults.length > 0 && (
           <button
             onClick={() => setShowSearchDetails(!showSearchDetails)}
-            className="ml-auto text-xs text-zinc-500 hover:text-zinc-300 flex items-center gap-1"
+            className="text-xs text-zinc-500 hover:text-zinc-300 flex items-center gap-1"
           >
             <SearchIcon className="h-3 w-3" />
             {searchResults.filter(r => r.isReranked).length > 0 ? 'Reranked' : 'Vector'} Search
             {showSearchDetails ? <ChevronLeftIcon className="h-3 w-3 rotate-90" /> : <ChevronRightIcon className="h-3 w-3" />}
+          </button>
+        )}
+        
+        {/* Metrics badge */}
+        {metrics && (
+          <button
+            onClick={() => setShowMetrics(!showMetrics)}
+            className="ml-auto text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1 bg-blue-500/10 px-2 py-1 rounded"
+          >
+            <ClockIcon className="h-3 w-3" />
+            {metrics.totalDuration}ms • ${metrics.totalCost.toFixed(4)}
+            {showMetrics ? <ChevronLeftIcon className="h-3 w-3 rotate-90" /> : <ChevronRightIcon className="h-3 w-3" />}
           </button>
         )}
       </div>
@@ -927,6 +970,71 @@ function MessageBubble({
               </div>
             ))}
           </div>
+        </div>
+      )}
+      
+      {/* Metrics Details */}
+      {metrics && showMetrics && (
+        <div className="mt-2 rounded-lg border border-blue-500/30 bg-blue-500/5 p-3">
+          <div className="text-xs font-medium text-blue-400 mb-3 flex items-center gap-2">
+            <ClockIcon className="h-3 w-3" />
+            Request Metrics
+          </div>
+          <div className="grid grid-cols-3 gap-3 mb-3">
+            <div className="text-center">
+              <div className="text-blue-400 text-lg font-medium">{metrics.totalDuration}ms</div>
+              <div className="text-zinc-400 text-[10px]">
+                <ClockIcon className="h-3 w-3 inline mr-1" />Total Time
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-green-400 text-lg font-medium">${metrics.totalCost.toFixed(4)}</div>
+              <div className="text-zinc-400 text-[10px]">
+                <DollarIcon className="h-3 w-3 inline mr-1" />Total Cost
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-purple-400 text-lg font-medium">{metrics.totalTokens}</div>
+              <div className="text-zinc-400 text-[10px]">
+                <HashIcon className="h-3 w-3 inline mr-1" />Tokens
+              </div>
+            </div>
+          </div>
+          {metrics.breakdown && (
+            <div className="space-y-2">
+              <div className="text-xs font-medium text-zinc-400 mb-2">Breakdown:</div>
+              {metrics.breakdown.search && (
+                <div className="bg-zinc-900/50 rounded p-2">
+                  <div className="text-emerald-400 text-xs font-medium mb-1">Vector Search</div>
+                  <div className="grid grid-cols-3 gap-2 text-[10px] text-zinc-300">
+                    <div>Time: {metrics.breakdown.search.duration || 0}ms</div>
+                    <div>Cost: ${(metrics.breakdown.search.cost || 0).toFixed(4)}</div>
+                    <div>Tokens: {metrics.breakdown.search.tokens || 0}</div>
+                  </div>
+                </div>
+              )}
+              {metrics.breakdown.rerank && (
+                <div className="bg-zinc-900/50 rounded p-2">
+                  <div className="text-yellow-400 text-xs font-medium mb-1">Reranking</div>
+                  <div className="grid grid-cols-3 gap-2 text-[10px] text-zinc-300">
+                    <div>Time: {metrics.breakdown.rerank.duration || 0}ms</div>
+                    <div>Cost: ${(metrics.breakdown.rerank.cost || 0).toFixed(4)}</div>
+                    <div>Tokens: {metrics.breakdown.rerank.tokens || 0}</div>
+                  </div>
+                </div>
+              )}
+              {metrics.breakdown.response && (
+                <div className="bg-zinc-900/50 rounded p-2">
+                  <div className="text-blue-400 text-xs font-medium mb-1">Response Generation</div>
+                  <div className="grid grid-cols-3 gap-2 text-[10px] text-zinc-300">
+                    <div>Time: {metrics.breakdown.response.duration || 0}ms</div>
+                    <div>Cost: ${(metrics.breakdown.response.cost || 0).toFixed(4)}</div>
+                    <div>Tokens: {metrics.breakdown.response.tokens || 0}</div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>

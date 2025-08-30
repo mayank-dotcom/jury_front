@@ -14,6 +14,39 @@ export interface SourceSnippet {
   isReranked: boolean;
 }
 
+export interface RequestMetrics {
+  totalDuration: number;
+  totalCost: number;
+  totalTokens: number;
+  breakdown?: {
+    search?: {
+      tokens?: number;
+      cost?: number;
+      duration?: number;
+      embeddingMetrics?: {
+        tokens: number;
+        cost: number;
+        duration: number;
+      };
+      searchDuration?: number;
+      resultsCount?: number;
+    };
+    rerank?: {
+      tokens?: number;
+      cost?: number;
+      duration?: number;
+      error?: string;
+    };
+    response?: {
+      tokens?: number;
+      cost?: number;
+      duration?: number;
+    };
+  };
+  requestDuration?: number;
+  timestamp?: string;
+}
+
 export interface ChatResponse {
   response: string;
   citations?: number[];
@@ -25,6 +58,11 @@ export interface ChatResponse {
     rerankPosition?: number;
     isReranked: boolean;
   }>;
+  metrics?: RequestMetrics;
+  timing?: {
+    requestDuration: number;
+    timestamp: string;
+  };
 }
 
 export interface ChatHistoryResponse {
@@ -146,7 +184,12 @@ export class ApiClient {
       originalScore: number;
       rerankPosition?: number;
       isReranked: boolean;
-    }> 
+    }>;
+    metrics?: RequestMetrics;
+    timing?: {
+      requestDuration: number;
+      timestamp: string;
+    };
   }> {
     const response = await fetch(`${this.baseUrl}/search`, {
       method: 'POST',
