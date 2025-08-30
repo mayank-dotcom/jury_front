@@ -686,19 +686,7 @@ function SidebarSection({ title, children }: { title: string; children: React.Re
   )
 }
 
-function FolderItem({ children, active = false }: { children: React.ReactNode; active?: boolean }) {
-  return (
-    <button
-      className={cn(
-        "w-full flex items-center justify-between rounded-lg px-3 py-2 text-sm hover:bg-zinc-900",
-        active ? "bg-zinc-900 text-emerald-400" : "text-zinc-300",
-      )}
-    >
-      <span className="truncate">{children}</span>
-      <ChevronRightIcon className="h-4 w-4 text-zinc-500" />
-    </button>
-  )
-}
+
 
 function ChatListItem({
   title,
