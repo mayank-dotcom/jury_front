@@ -69,6 +69,16 @@ export interface DeleteDocumentResponse {
   filterUsed?: string;
 }
 
+export interface DebugEmbeddingsResponse {
+  documentId: string;
+  embeddings: Array<{
+    id: string;
+    text: string;
+    metadata?: Record<string, unknown>;
+  }>;
+  totalEmbeddings: number;
+}
+
 export class ApiClient {
   private baseUrl: string;
 
@@ -206,7 +216,7 @@ export class ApiClient {
     return response.json();
   }
 
-  async debugEmbeddings(documentId: string): Promise<any> {
+  async debugEmbeddings(documentId: string): Promise<DebugEmbeddingsResponse> {
     const response = await fetch(`${this.baseUrl}/debug/embeddings/${documentId}`);
     
     if (!response.ok) {
