@@ -501,6 +501,16 @@ export default function Page() {
                 <span className="text-sm">{currentSessionId}</span>
               </div>
               <div className="flex items-center gap-3">
+                {/* Mobile upload button */}
+                <button 
+                  onClick={() => setShowUploadModal(true)}
+                  className="md:hidden flex items-center gap-2 rounded-lg bg-emerald-500 text-black font-medium px-3 py-2 hover:bg-emerald-400 transition-colors text-sm"
+                  disabled={isUploading}
+                  aria-label="Upload document"
+                >
+                  <UploadIcon className="h-4 w-4" />
+                  <span className="hidden sm:inline">Upload</span>
+                </button>
                 <ConnectionStatus isConnected={isConnected} />
                 <ModelChip />
               </div>
@@ -572,7 +582,7 @@ export default function Page() {
       {/* Upload Modal */}
       {showUploadModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-zinc-900 rounded-xl border border-zinc-700 w-full max-w-md">
+          <div className="bg-zinc-900 rounded-xl border border-zinc-700 w-full max-w-md max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
             <div className="flex items-center justify-between p-4 border-b border-zinc-700">
               <h2 className="text-lg font-semibold text-white">Upload Document</h2>
@@ -647,7 +657,7 @@ export default function Page() {
             <div className="flex items-center justify-end gap-3 p-4 border-t border-zinc-700">
               <button
                 onClick={() => setShowUploadModal(false)}
-                className="px-4 py-2 text-zinc-400 hover:text-white transition-colors"
+                className="px-4 py-3 text-zinc-400 hover:text-white transition-colors min-h-[44px] flex items-center"
                 disabled={isUploading}
               >
                 Cancel
@@ -655,7 +665,7 @@ export default function Page() {
               <button
                 onClick={handleUpload}
                 disabled={isUploading || (!selectedFile && !uploadUrl.trim())}
-                className="px-4 py-2 bg-emerald-500 text-black font-medium rounded-lg hover:bg-emerald-400 disabled:bg-zinc-700 disabled:text-zinc-500 transition-colors flex items-center gap-2"
+                className="px-4 py-3 bg-emerald-500 text-black font-medium rounded-lg hover:bg-emerald-400 disabled:bg-zinc-700 disabled:text-zinc-500 transition-colors flex items-center gap-2 min-h-[44px]"
               >
                 {isUploading ? (
                   <>
