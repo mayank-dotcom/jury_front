@@ -1,99 +1,73 @@
-# RAG Assignment - Advanced Document Assistant
+# Oliver AI - Simple Chatbot Frontend
 
-A sophisticated Retrieval-Augmented Generation (RAG) system with intelligent reranking and citation support. Built with Next.js, Node.js, MongoDB Atlas Vector Search, and OpenAI.
+A modern React frontend for a simple chatbot application with conversation history. Built with Next.js, TypeScript, and Tailwind CSS.
 
 ## 🏗️ System Architecture
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Frontend      │    │    Backend      │    │   Vector DB     │
-│   (Next.js)     │◄──►│   (Node.js)     │◄──►│ MongoDB Atlas   │
+│   Frontend      │    │    Backend      │    │   Database      │
+│   (Next.js)     │◄──►│   (Node.js)     │◄──►│   MongoDB       │
 │                 │    │                 │    │                 │
-│ • Chat UI       │    │ • Vector Search │    │ • Embeddings    │
-│ • Citations     │    │ • Reranking     │    │ • Index: default│
-│ • File Upload   │    │ • LLM Response  │    │ • Collection:   │
-│ • Search View   │    │ • Citation Gen  │    │   Baalkaand     │
+│ • Chat UI       │    │ • Chat History  │    │ • Chat History  │
+│ • Sessions      │    │ • OpenAI API    │    │ • Sessions      │
+│ • Message Flow  │    │ • Message Store │    │                 │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │                       │
-         │              ┌─────────────────┐              │
-         └──────────────►│    OpenAI API   │◄─────────────┘
+         │                       │
+         │              ┌─────────────────┐
+         └──────────────►│    OpenAI API   │
                         │                 │
-                        │ • Embeddings    │
                         │ • Chat Models   │
-                        │ • Reranking     │
+                        │ • GPT-3.5-turbo │
                         └─────────────────┘
 ```
 
-### 🔄 RAG Pipeline Flow
+### 🔄 Chat Flow
 
-1. **Document Ingestion** → Text Splitting → Embedding Generation → Vector Storage
-2. **Query Processing** → Vector Search → Reranking → Citation Generation → Response
+1. **User Input** → Frontend → Backend → OpenAI API → Response → History Storage
+2. **Session Management** → Chat History Retrieval → Context Preservation
 
 ## 📊 Technical Specifications
 
-### Chunking Parameters
+### Frontend Architecture
 
-```javascript
-// Text Splitting Configuration
-const splitter = new RecursiveCharacterTextSplitter({
-  chunkSize: 8192,        // Large chunks for better context retention
-  chunkOverlap: 200,      // Overlap to maintain continuity
-});
+```typescript
+// Main components structure
+src/
+├── app/
+│   ├── page.tsx          // Main chat interface
+│   ├── layout.tsx        // App layout
+│   └── globals.css       // Global styles
+├── lib/
+│   ├── api.ts           // API client
+│   └── utils.ts         // Utility functions
 ```
 
-**Rationale:**
-- **Large chunks (8KB)**: Preserve semantic context and reduce fragmentation
-- **Minimal overlap (200 chars)**: Balance context preservation with storage efficiency
-- **Recursive splitting**: Maintains natural text boundaries (paragraphs, sentences)
+**Key Features:**
+- **Real-time Chat**: Instant message sending and receiving
+- **Session Management**: Multiple conversation threads
+- **Responsive Design**: Works on desktop and mobile
+- **Type Safety**: Full TypeScript implementation
 
-### Vector Search & Retrieval Settings
+### API Integration
 
-```javascript
-// MongoDB Atlas Vector Search Pipeline
-{
-  $vectorSearch: {
-    index: "default",           // Vector search index name
-    path: "embedding",          // Field containing embeddings
-    queryVector: embedding,     // Query embedding (1536 dimensions)
-    numCandidates: 100,        // Candidate pool for better recall
-    limit: 10                  // Initial results before reranking
-  }
+```typescript
+// API client configuration
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
+export class ApiClient {
+  async sendMessage(message: string, sessionId?: string): Promise<ChatResponse>
+  async getChatHistory(sessionId: string): Promise<ChatHistoryResponse>
+  async getSessions(): Promise<{ sessions: Session[] }>
+  async healthCheck(): Promise<{ status: string; message: string }>
 }
 ```
 
-**Configuration Details:**
-- **Embedding Model**: `text-embedding-3-large` (1536 dimensions)
-- **Search Strategy**: Cosine similarity
-- **Candidate Pool**: 100 documents for comprehensive search
-- **Pre-rerank Limit**: 10 results to ensure quality candidates
-
-### Reranking System
-
-```javascript
-// Two-Stage Retrieval Process
-1. Vector Search    → 10 candidates (similarity-based)
-2. LLM Reranking   → 3 final results (relevance-based)
-```
-
-**Reranking Implementation:**
-- **Model**: GPT-3.5-turbo
-- **Strategy**: Semantic relevance analysis
-- **Input**: Query + document excerpts (800 chars each)
-- **Output**: Relevance-ordered document ranking
-- **Fallback**: Graceful degradation to vector search order
-
-### Citation Generation
-
-```javascript
-// Citation Pipeline
-Query + Sources → GPT-3.5-turbo → Response with [1], [2], [3] → Parse & Map
-```
-
-**Citation Features:**
-- **Inline Citations**: `[1]`, `[2]`, `[3]` format
-- **Source Mapping**: Each citation maps to specific document snippet
-- **Validation**: Citation numbers validated against available sources
-- **Traceability**: Full source text + reranking metadata preserved
+**API Features:**
+- **Type-safe requests**: Full TypeScript interfaces
+- **Error handling**: Graceful error management
+- **Session persistence**: Automatic session management
+- **Health monitoring**: Connection status tracking
 
 ## 🛠️ Technology Stack
 
@@ -101,35 +75,20 @@ Query + Sources → GPT-3.5-turbo → Response with [1], [2], [3] → Parse & Ma
 
 | Component | Technology | Purpose |
 |-----------|------------|---------|
-| **Frontend** | Next.js 14, TypeScript, Tailwind CSS | Modern React app with type safety |
+| **Frontend** | Next.js 15, TypeScript, Tailwind CSS | Modern React app with type safety |
 | **Backend** | Node.js, Express.js | RESTful API server |
-| **Vector Database** | MongoDB Atlas Vector Search | Scalable vector similarity search |
-| **LLM Provider** | OpenAI GPT-3.5-turbo | Response generation & reranking |
-| **Embeddings** | OpenAI text-embedding-3-large | High-quality document embeddings |
-| **File Processing** | LangChain loaders | PDF, text, web content processing |
+| **Database** | MongoDB | Chat history and session storage |
+| **LLM Provider** | OpenAI GPT-3.5-turbo | Response generation |
 
 ### Key Dependencies
-
-#### Backend
-```json
-{
-  "openai": "^4.x",                    // OpenAI API client
-  "mongodb": "^6.x",                   // MongoDB driver
-  "@langchain/openai": "^0.x",         // LangChain OpenAI integration
-  "@langchain/community": "^0.x",      // Document loaders & vector stores
-  "multer": "^1.x",                    // File upload handling
-  "express": "^4.x",                   // Web framework
-  "cors": "^2.x"                       // Cross-origin requests
-}
-```
 
 #### Frontend
 ```json
 {
-  "next": "14.x",                      // React framework
-  "typescript": "^5.x",                // Type safety
-  "tailwindcss": "^3.x",               // Utility-first CSS
-  "@types/react": "^18.x"              // React type definitions
+  "next": "15.5.2",                    // React framework
+  "typescript": "^5",                  // Type safety
+  "tailwindcss": "^4",                 // Utility-first CSS
+  "react": "19.1.0"                    // React library
 }
 ```
 
@@ -138,77 +97,21 @@ Query + Sources → GPT-3.5-turbo → Response with [1], [2], [3] → Parse & Ma
 ### Prerequisites
 
 - Node.js 18+ and npm
-- MongoDB Atlas account with Vector Search enabled
-- OpenAI API key
+- Backend server running (see backend README)
+- OpenAI API key configured in backend
 
 ### 1. Environment Setup
 
-Create `.env` files in both `backend/` and `frontend/` directories:
-
-**backend/.env**
-```env
-# OpenAI Configuration
-OPENAI_API_KEY=sk-your-openai-api-key
-
-# MongoDB Configuration
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/TalkingLibrary
-
-# Server Configuration
-PORT=3000
-```
+Create `.env.local` file in the `frontend/` directory:
 
 **frontend/.env.local**
 ```env
 # API Configuration
-NEXT_PUBLIC_API_URL=http://localhost:3000
+NEXT_PUBLIC_API_URL=http://localhost:5000
 ```
 
-### 2. Database Setup
+### 2. Installation & Startup
 
-#### MongoDB Atlas Vector Search Index
-
-Create a vector search index named `default` in your `Baalkaand` collection:
-
-```json
-{
-  "fields": [
-    {
-      "type": "vector",
-      "path": "embedding",
-      "numDimensions": 1536,
-      "similarity": "cosine"
-    }
-  ]
-}
-```
-
-#### Collection Structure
-```javascript
-// Documents are stored with this schema:
-{
-  _id: ObjectId,
-  text: "Document content chunk...",
-  embedding: [1536 float values],
-  metadata: {
-    documentId: "doc_timestamp_random",
-    source: "filename.pdf",
-    filename: "original_name.pdf",
-    type: "pdf"
-  }
-}
-```
-
-### 3. Installation & Startup
-
-#### Backend Setup
-```bash
-cd backend
-npm install
-npm start
-# Server runs on http://localhost:3000
-```
-
-#### Frontend Setup
 ```bash
 cd frontend
 npm install
@@ -216,143 +119,93 @@ npm run dev
 # App runs on http://localhost:3001
 ```
 
-### 4. First Steps
+### 3. First Steps
 
-1. **Upload Documents**: Use the upload button to add PDF, text, or web content
-2. **Ask Questions**: Start chatting with the document assistant
-3. **View Citations**: Click on `[1]`, `[2]`, `[3]` to see source snippets
-4. **Explore Search**: Expand search details to see reranking information
+1. **Start Chatting**: Open the frontend and start a conversation
+2. **Create Sessions**: Use "New chat" to start different conversation threads
+3. **View History**: Switch between different chat sessions
+4. **Clear History**: Delete individual session histories
+
+## 🎨 UI Components
+
+### Main Features
+
+- **Chat Interface**: Clean, modern chat UI with message bubbles
+- **Session Sidebar**: Manage multiple conversation threads
+- **Connection Status**: Real-time backend connection monitoring
+- **Responsive Design**: Works seamlessly on desktop and mobile
+
+### Component Structure
+
+```typescript
+// Main page components
+- Page: Main chat interface
+- MessageBubble: Individual message display
+- SidebarSection: Session management
+- ChatListItem: Session list items
+- ConnectionStatus: Backend connection indicator
+- ModelChip: AI model information
+```
 
 ## 🔧 Configuration Options
 
-### Chunking Customization
+### API Configuration
 
-```javascript
-// Adjust in backend/server.js
-const splitter = new RecursiveCharacterTextSplitter({
-  chunkSize: 8192,      // Increase for longer context, decrease for precision
-  chunkOverlap: 200,    // Adjust overlap for context continuity
-});
+```typescript
+// Adjust API base URL in .env.local
+NEXT_PUBLIC_API_URL=http://localhost:5000
+
+// Or modify directly in lib/api.ts
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 ```
 
-### Search Parameters
+### Styling Customization
 
-```javascript
-// Vector search configuration
-const pipeline = [
-  {
-    $vectorSearch: {
-      index: "default",
-      path: "embedding",
-      queryVector: queryEmbedding,
-      numCandidates: 100,    // Increase for better recall
-      limit: 10              // Candidates for reranking
-    }
-  }
-];
-```
-
-### Reranking Settings
-
-```javascript
-// Reranking function parameters
-await rerankResults(query, searchResults, 3);  // Final result count
-```
-
-### Citation Generation
-
-```javascript
-// Response generation settings
-const response = await openai.chat.completions.create({
-  model: "gpt-3.5-turbo",
-  temperature: 0.3,      // Lower for more consistent citations
-  max_tokens: 400        // Adjust based on desired response length
-});
-```
-
-## 📡 API Endpoints
-
-### Core Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/chat` | Main chat interface with citations |
-| `POST` | `/upload` | Document upload (PDF, text, URL) |
-| `POST` | `/search` | Vector search with optional reranking |
-| `POST` | `/test-citations` | Citation system testing |
-| `GET` | `/documents` | List uploaded documents |
-| `DELETE` | `/documents/:id` | Delete document and embeddings |
-| `GET` | `/sessions` | List chat sessions |
-| `GET` | `/health` | Server health check |
-
-### Example Usage
-
-```bash
-# Test citation system
-curl -X POST http://localhost:3000/test-citations \
-  -H "Content-Type: application/json" \
-  -d '{"query": "What is the main topic?", "limit": 3}'
-
-# Search with reranking
-curl -X POST http://localhost:3000/search \
-  -H "Content-Type: application/json" \
-  -d '{"query": "important information", "useReranking": true, "limit": 5}'
+```css
+/* Modify Tailwind classes in components */
+- Color scheme: emerald-500 (primary), zinc-800/900 (backgrounds)
+- Typography: text-zinc-300 (main text), text-zinc-400 (secondary)
+- Spacing: Consistent padding and margins throughout
 ```
 
 ## 🎯 Performance Characteristics
 
-### Latency Breakdown
-- **Vector Search**: ~200-500ms (depends on document count)
-- **Reranking**: ~1-2s (GPT-3.5-turbo processing)
-- **Citation Generation**: ~2-3s (response generation + parsing)
-- **Total Response Time**: ~3-5s for complex queries
+### Frontend Performance
+- **Initial Load**: ~1-2s (Next.js optimization)
+- **Message Sending**: ~100-200ms (API call)
+- **Session Switching**: ~50-100ms (local state update)
+- **Memory Usage**: ~20-30MB (React app)
 
-### Scalability Notes
-- **Document Limit**: MongoDB Atlas scales to millions of documents
-- **Concurrent Users**: Express.js handles moderate concurrent load
-- **Memory Usage**: ~100MB base + 50MB per 10k documents
-- **Storage**: ~2KB per document chunk (text + embedding)
-
-## 🔍 Advanced Features
-
-### Multi-Modal Support
-- **PDF Processing**: Automatic text extraction
-- **Web Scraping**: URL content ingestion
-- **Text Files**: Direct text processing
-- **Future**: Image and table extraction planned
-
-### Search Modes
-- **Standard**: Vector similarity only
-- **Reranked**: AI-enhanced relevance (recommended)
-- **Hybrid**: Keyword + semantic search (future)
-
-### Citation Verification
-- **Automatic Validation**: Citations checked against available sources
-- **Source Preservation**: Full document text maintained for verification
-- **Reranking Metadata**: Original scores preserved for analysis
+### User Experience
+- **Real-time Updates**: Instant message display
+- **Smooth Animations**: Tailwind CSS transitions
+- **Responsive Design**: Mobile-first approach
+- **Accessibility**: Proper ARIA labels and keyboard navigation
 
 ## 🐛 Troubleshooting
 
 ### Common Issues
 
-1. **No search results**: Check vector index configuration
-2. **Citation parsing errors**: Verify GPT response format
-3. **Upload failures**: Check file size limits (10MB max)
-4. **Connection errors**: Verify MongoDB URI and OpenAI API key
+1. **Connection errors**: Check if backend is running on correct port
+2. **API errors**: Verify NEXT_PUBLIC_API_URL environment variable
+3. **Styling issues**: Ensure Tailwind CSS is properly configured
+4. **Build errors**: Check TypeScript types and imports
 
-### Debug Endpoints
-- `GET /health` - Server status
-- `GET /debug/embeddings/:documentId` - Embedding inspection
-- `POST /test-citations` - Citation system testing
+### Development Tips
+
+- Use browser dev tools to inspect API calls
+- Check console for TypeScript errors
+- Verify environment variables are loaded correctly
+- Test on different screen sizes for responsive design
 
 ## 📈 Future Enhancements
 
-- [ ] **Hybrid Search**: Combine keyword + semantic search
-- [ ] **Multi-Modal RAG**: Image and table understanding
-- [ ] **Advanced Reranking**: Cohere or custom reranking models
-- [ ] **Streaming Responses**: Real-time response generation
-- [ ] **Analytics Dashboard**: Search performance metrics
-- [ ] **Multi-Tenant Support**: User-specific document collections
+- [ ] **Dark/Light Mode**: Theme switching capability
+- [ ] **Message Search**: Search through chat history
+- [ ] **Export Conversations**: Download chat history
+- [ ] **Message Reactions**: Like/dislike responses
+- [ ] **Typing Indicators**: Show when AI is responding
+- [ ] **Message Threading**: Reply to specific messages
 
 ## 📝 License
 
@@ -360,4 +213,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Built with ❤️ using OpenAI, MongoDB Atlas, and Next.js**
+**Built with ❤️ using Next.js, TypeScript, and Tailwind CSS**
