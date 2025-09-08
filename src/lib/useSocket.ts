@@ -40,41 +40,35 @@ export const useSocket = ({ feedbackId, role }: UseSocketOptions) => {
 
     // Connection event handlers
     newSocket.on('connect', () => {
-      console.log('Socket connected:', newSocket.id)
       setIsConnected(true)
       setError(null)
-      
+
       // Join the feedback room
       newSocket.emit('join-feedback', feedbackId)
     })
 
     newSocket.on('disconnect', () => {
-      console.log('Socket disconnected')
       setIsConnected(false)
     })
 
-    newSocket.on('connect_error', (error) => {
-      console.error('Socket connection error:', error)
+    newSocket.on('connect_error', () => {
       setError('Connection failed. Please check your internet connection.')
     })
 
     // Message event handlers
     newSocket.on('new-message', (data: SocketMessage) => {
-      console.log('New message received:', data)
       setMessages(prev => {
         // Check if message already exists to avoid duplicates
-        const exists = prev.some(msg => 
-          msg.role === data.discussion.role && 
-          msg.message === data.discussion.message && 
+        const exists = prev.some(msg =>
+          msg.role === data.discussion.role &&
+          msg.message === data.discussion.message &&
           msg.createdAt === data.discussion.createdAt
         )
-        
+
         if (exists) {
-          console.log('Message already exists, not adding duplicate')
           return prev
         }
-        
-        console.log('Adding new message to state')
+
         return [...prev, data.discussion]
       })
     })
@@ -89,12 +83,11 @@ export const useSocket = ({ feedbackId, role }: UseSocketOptions) => {
       })
     })
 
-    newSocket.on('user-joined', (data) => {
-      console.log('User joined:', data)
+    newSocket.on('user-joined', () => {
+      // User joined event handled
     })
 
     newSocket.on('error', (data) => {
-      console.error('Socket error:', data)
       setError(data.message || 'An error occurred')
     })
 

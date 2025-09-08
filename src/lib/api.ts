@@ -134,13 +134,8 @@ export class ApiClient {
   }
 
   async getFeedbackById(feedbackId: string): Promise<Feedback> {
-    console.log('API: Fetching feedback with ID:', feedbackId)
-    console.log('API: Request URL:', `${this.baseUrl}/api/feedback/${feedbackId}`)
     const response = await fetch(`${this.baseUrl}/api/feedback/${feedbackId}`);
-    console.log('API: Response status:', response.status)
     if (!response.ok) {
-      const errorText = await response.text()
-      console.error('API: Error response:', errorText)
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     return response.json();

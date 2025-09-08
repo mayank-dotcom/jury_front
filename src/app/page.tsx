@@ -12,13 +12,6 @@ function PlusIcon(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   )
 }
-function TrashIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" {...props}>
-      <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M10 11v6M14 11v6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  )
-}
 function UploadIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" {...props}>
@@ -105,7 +98,6 @@ export default function Page() {
   const [selectedScreenshot, setSelectedScreenshot] = useState<Screenshot | null>(null)
   const [feedback, setFeedback] = useState<Feedback[]>([])
   const [filteredFeedback, setFilteredFeedback] = useState<Feedback[]>([])
-  const [selectedFeedback, setSelectedFeedback] = useState<Feedback | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [isConnected, setIsConnected] = useState(false)
   const [newProjectName, setNewProjectName] = useState('')
@@ -134,7 +126,7 @@ export default function Page() {
     try {
       await apiClient.healthCheck()
       setIsConnected(true)
-    } catch (error) {
+    } catch {
       setIsConnected(false)
     }
   }
@@ -178,7 +170,6 @@ export default function Page() {
     setSelectedProject(project)
     setViewMode('project')
     setSelectedScreenshot(null)
-    setSelectedFeedback(null)
   }
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -201,7 +192,6 @@ export default function Page() {
     if (!selectedProject) return
     
     setSelectedScreenshot(screenshot)
-    setSelectedFeedback(null)
     setViewMode('screenshot')
     await loadFeedback(selectedProject._id)
   }
@@ -280,14 +270,6 @@ export default function Page() {
     }
   }
 
-  const getSeverityColor = (severity: string) => {
-    switch (severity) {
-      case 'high': return 'text-red-400 bg-red-400/20'
-      case 'medium': return 'text-yellow-400 bg-yellow-400/20'
-      case 'low': return 'text-green-400 bg-green-400/20'
-      default: return 'text-zinc-400 bg-zinc-400/20'
-    }
-  }
 
   const getSeverityIcon = (severity: string) => {
     switch (severity) {
@@ -672,7 +654,6 @@ export default function Page() {
                               width: `${width}px`,
                               height: `${height}px`,
                             }}
-                            onClick={() => setSelectedFeedback(item)}
                           >
                             {/* Feedback Highlight Box */}
                             <div

@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { apiClient, Feedback, Discussion } from '@/lib/api'
+import { apiClient, Feedback } from '@/lib/api'
 import { cn } from '@/lib/utils'
 import { useSocket } from '@/lib/useSocket'
 
@@ -73,7 +73,7 @@ function CheckIcon(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
-export default function DiscussionPage() {
+function DiscussionPageContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const feedbackId = searchParams.get('feedbackId')
@@ -122,34 +122,25 @@ export default function DiscussionPage() {
     const existingDiscussions = feedback.discussions || []
     const newSocketMessages = socketMessages || []
     
-    console.log('Merging messages:', {
-      existing: existingDiscussions.length,
-      socket: newSocketMessages.length,
-      existingDiscussions,
-      newSocketMessages
-    })
-    
     // Create a map to avoid duplicates
     const messageMap = new Map()
-    
+
     // Add existing discussions first
     existingDiscussions.forEach(discussion => {
       const key = `${discussion.role}-${discussion.message}-${discussion.createdAt}`
       messageMap.set(key, discussion)
     })
-    
+
     // Add new Socket.IO messages
     newSocketMessages.forEach(message => {
       const key = `${message.role}-${message.message}-${message.createdAt}`
       messageMap.set(key, message)
     })
-    
+
     // Convert back to array and sort by creation time
-    const result = Array.from(messageMap.values()).sort((a, b) => 
+    const result = Array.from(messageMap.values()).sort((a, b) =>
       new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
     )
-    
-    console.log('Final merged messages:', result)
     return result
   }, [feedback?.discussions, socketMessages])
 
@@ -175,24 +166,13 @@ export default function DiscussionPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
-  const loadFeedback = async () => {
+  const loadFeedback = useCallback(async () => {
     if (!feedbackId) return
-    
+
     try {
       setIsLoading(true)
-      console.log('Loading feedback with ID:', feedbackId)
-      
-      // First, let's check if there are any feedback items in the database
-      try {
-        const allFeedback = await apiClient.getAllFeedback()
-        console.log('All feedback items in database:', allFeedback.length)
-        console.log('Available feedback IDs:', allFeedback.map(f => f._id))
-      } catch (debugError) {
-        console.error('Could not fetch all feedback for debugging:', debugError)
-      }
-      
+
       const feedbackData = await apiClient.getFeedbackById(feedbackId)
-      console.log('Feedback loaded successfully:', feedbackData)
       setFeedback(feedbackData)
     } catch (error) {
       console.error('Failed to load feedback:', error)
@@ -200,24 +180,17 @@ export default function DiscussionPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [feedbackId])
 
   const sendMessage = async () => {
     if (!newMessage.trim() || !feedback) return
 
     try {
       setIsLoading(true)
-      
-      console.log('Sending message:', {
-        feedbackId,
-        role: selectedRole,
-        message: newMessage.trim(),
-        socketConnected
-      })
-      
+
       // Send message via Socket.IO for real-time delivery
       sendSocketMessage(newMessage.trim())
-      
+
       // Clear the input immediately for better UX
       setNewMessage('')
       stopTyping()
@@ -298,7 +271,7 @@ export default function DiscussionPage() {
         <div className="text-center">
           <ChatBubbleLeftRightIcon className="h-16 w-16 text-zinc-400 mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-zinc-300 mb-2">Discussion Not Found</h2>
-          <p className="text-zinc-400 mb-4">The discussion you're looking for doesn't exist.</p>
+          <p className="text-zinc-400 mb-4">The discussion you&apos;re looking for doesn&apos;t exist.</p>
           <button
             onClick={() => router.back()}
             className="px-4 py-2 text-black font-medium rounded-lg transition-colors hover:opacity-90"
@@ -554,7 +527,7 @@ export default function DiscussionPage() {
                       <button
                         key={role.value}
                         onClick={() => {
-                          setSelectedRole(role.value as any)
+                          setSelectedRole(role.value as 'designer' | 'developer' | 'product_manager' | 'reviewer')
                           setIsDropdownOpen(false)
                         }}
                         className={`w-full px-4 py-3 text-left text-sm transition-all duration-200 flex items-center gap-3 first:rounded-t-xl last:rounded-b-xl ${
@@ -628,4 +601,23 @@ export default function DiscussionPage() {
        </div>
       </div>
    )
- }
+}
+
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen bg-zinc-900 text-zinc-100 flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500 mx-auto mb-4"></div>
+        <p className="text-zinc-400">Loading discussion...</p>
+      </div>
+    </div>
+  )
+}
+
+export default function DiscussionPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <DiscussionPageContent />
+    </Suspense>
+  )
+}
