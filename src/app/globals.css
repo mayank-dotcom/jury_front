@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Asimovian&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -19,8 +20,62 @@
   }
 }
 
+/* Asimovian Font Class */
+.asimovian-regular {
+  font-family: "Asimovian", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Asimovian", Arial, Helvetica, sans-serif;
+}
+
+/* Apply Asimovian font to all text elements */
+* {
+  font-family: "Asimovian", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif !important;
+}
+
+/* Ensure all headings use Asimovian */
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Asimovian", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif !important;
+}
+
+/* Ensure all text elements use Asimovian */
+p, span, div, button, input, textarea, label {
+  font-family: "Asimovian", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif !important;
+}
+
+/* Custom Scrollbar Styles */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(39, 39, 42, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, rgba(100, 253, 0, 0.3) 0%, rgba(100, 253, 0, 0.1) 100%);
+  border-radius: 4px;
+  border: 1px solid rgba(100, 253, 0, 0.2);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, rgba(100, 253, 0, 0.5) 0%, rgba(100, 253, 0, 0.2) 100%);
+  box-shadow: 0 0 8px rgba(100, 253, 0, 0.3);
+}
+
+::-webkit-scrollbar-corner {
+  background: rgba(39, 39, 42, 0.3);
+}
+
+/* Firefox Scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 253, 0, 0.3) rgba(39, 39, 42, 0.3);
 }

@@ -1,120 +1,50 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
-export interface ChatMessage {
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp?: Date;
+export interface Project {
+  _id: string;
+  name: string;
+  description: string;
+  screenshots: Screenshot[];
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface SourceSnippet {
-  citationNumber: number;
-  text: string;
-  originalScore: number;
-  rerankPosition?: number;
-  isReranked: boolean;
-}
-
-export interface RequestMetrics {
-  totalDuration: number;
-  totalCost: number;
-  totalTokens: number;
-  breakdown?: {
-    search?: {
-      tokens?: number;
-      cost?: number;
-      duration?: number;
-      embeddingMetrics?: {
-        tokens: number;
-        cost: number;
-        duration: number;
-      };
-      searchDuration?: number;
-      resultsCount?: number;
-    };
-    rerank?: {
-      tokens?: number;
-      cost?: number;
-      duration?: number;
-      error?: string;
-    };
-    response?: {
-      tokens?: number;
-      cost?: number;
-      duration?: number;
-    };
-  };
-  requestDuration?: number;
-  timestamp?: string;
-}
-
-export interface ChatResponse {
-  response: string;
-  citations?: number[];
-  sourceSnippets?: SourceSnippet[];
-  sessionId: string;
-  searchResults: Array<{
-    text: string;
-    originalScore: number;
-    rerankPosition?: number;
-    isReranked: boolean;
-  }>;
-  metrics?: RequestMetrics;
-  timing?: {
-    requestDuration: number;
-    timestamp: string;
-  };
-}
-
-export interface ChatHistoryResponse {
-  sessionId: string;
-  history: ChatMessage[];
-}
-
-export interface Session {
-  sessionId: string;
-  messageCount: number;
-  lastActivity: string;
-}
-
-export interface UploadResponse {
-  success: boolean;
-  message: string;
+export interface Screenshot {
   filename: string;
-  documentsProcessed: number;
-  type: string;
-  source: string;
-  documentId: string;
-}
-
-export interface Document {
-  documentId: string;
-  filename: string;
-  type: string;
-  source: string;
-  documentsProcessed: number;
+  originalName: string;
+  path: string;
+  width: number;
+  height: number;
   uploadedAt: string;
 }
 
-export interface DocumentsResponse {
-  documents: Document[];
+export interface Feedback {
+  _id: string;
+  category: 'Accessibility' | 'Visual Hierarchy' | 'Content & Copy' | 'UI/UX Patterns';
+  issue: string;
+  coordinates: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
+  severity: 'high' | 'medium' | 'low';
+  recommendation: string;
+  roleTags: ('designer' | 'developer' | 'product_manager' | 'reviewer')[];
+  discussions: Discussion[];
+  createdAt: string;
+  createdBy: string;
+  projectId: string;
+  screenshotId: string;
+  resolved: boolean;
+  resolvedAt?: string;
+  resolvedBy?: string;
 }
 
-export interface DeleteDocumentResponse {
-  success: boolean;
+export interface Discussion {
+  role: 'designer' | 'developer' | 'product_manager' | 'reviewer';
   message: string;
-  filename: string;
-  embeddingsDeleted: number;
-  filterUsed?: string;
-}
-
-export interface DebugEmbeddingsResponse {
-  documentId: string;
-  embeddings: Array<{
-    id: string;
-    text: string;
-    metadata?: Record<string, unknown>;
-  }>;
-  totalEmbeddings: number;
+  createdAt: string;
 }
 
 export class ApiClient {
@@ -124,16 +54,22 @@ export class ApiClient {
     this.baseUrl = baseUrl;
   }
 
-  async sendMessage(message: string, sessionId?: string): Promise<ChatResponse> {
-    const response = await fetch(`${this.baseUrl}/chat`, {
+  // Projects
+  async getProjects(): Promise<Project[]> {
+    const response = await fetch(`${this.baseUrl}/api/projects`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  }
+
+  async createProject(name: string, description: string = ''): Promise<Project> {
+    const response = await fetch(`${this.baseUrl}/api/projects`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        message,
-        sessionId: sessionId || 'default',
-      }),
+      body: JSON.stringify({ name, description }),
     });
 
     if (!response.ok) {
@@ -143,113 +79,35 @@ export class ApiClient {
     return response.json();
   }
 
-  async getChatHistory(sessionId: string): Promise<ChatHistoryResponse> {
-    const response = await fetch(`${this.baseUrl}/chat/history/${sessionId}`);
-    
+  async getProject(id: string): Promise<Project> {
+    const response = await fetch(`${this.baseUrl}/api/projects/${id}`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-
     return response.json();
   }
 
-  async clearChatHistory(sessionId: string): Promise<{ message: string }> {
-    const response = await fetch(`${this.baseUrl}/chat/history/${sessionId}`, {
-      method: 'DELETE',
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    return response.json();
-  }
-
-  async getSessions(): Promise<{ sessions: Session[] }> {
-    const response = await fetch(`${this.baseUrl}/sessions`);
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    return response.json();
-  }
-
-  async searchDocuments(query: string, limit?: number, useReranking?: boolean): Promise<{ 
-    query: string; 
-    useReranking: boolean;
-    totalCandidates: number;
-    results: Array<{ 
-      text: string; 
-      originalScore: number;
-      rerankPosition?: number;
-      isReranked: boolean;
-    }>;
-    metrics?: RequestMetrics;
-    timing?: {
-      requestDuration: number;
-      timestamp: string;
-    };
-  }> {
-    const response = await fetch(`${this.baseUrl}/search`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ query, limit, useReranking }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    return response.json();
-  }
-
-  async uploadDocument(file: File, url?: string): Promise<UploadResponse> {
+  // Screenshots
+  async uploadScreenshot(projectId: string, file: File): Promise<{ screenshot: Screenshot; project: Project }> {
     const formData = new FormData();
-    formData.append('document', file);
-    
-    if (url && url.trim()) {
-      formData.append('url', url.trim());
-    }
+    formData.append('screenshot', file);
 
-    const response = await fetch(`${this.baseUrl}/upload`, {
+    const response = await fetch(`${this.baseUrl}/api/projects/${projectId}/upload`, {
       method: 'POST',
       body: formData,
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-    }
-
-    return response.json();
-  }
-
-  async healthCheck(): Promise<{ status: string; message: string }> {
-    const response = await fetch(`${this.baseUrl}/health`);
-    
-    if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     return response.json();
   }
 
-  async getDocuments(): Promise<DocumentsResponse> {
-    const response = await fetch(`${this.baseUrl}/documents`);
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    return response.json();
-  }
-
-  async deleteDocument(documentId: string): Promise<DeleteDocumentResponse> {
-    const response = await fetch(`${this.baseUrl}/documents/${documentId}`, {
-      method: 'DELETE',
+  // Feedback
+  async generateFeedback(projectId: string, screenshotId: string): Promise<Feedback[]> {
+    const response = await fetch(`${this.baseUrl}/api/projects/${projectId}/feedback/${screenshotId}`, {
+      method: 'POST',
     });
 
     if (!response.ok) {
@@ -259,13 +117,108 @@ export class ApiClient {
     return response.json();
   }
 
-  async debugEmbeddings(documentId: string): Promise<DebugEmbeddingsResponse> {
-    const response = await fetch(`${this.baseUrl}/debug/embeddings/${documentId}`);
-    
+  async getFeedback(projectId: string): Promise<Feedback[]> {
+    const response = await fetch(`${this.baseUrl}/api/projects/${projectId}/feedback`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  }
+
+  async getAllFeedback(): Promise<Feedback[]> {
+    const response = await fetch(`${this.baseUrl}/api/feedback`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  }
+
+  async getFeedbackById(feedbackId: string): Promise<Feedback> {
+    console.log('API: Fetching feedback with ID:', feedbackId)
+    console.log('API: Request URL:', `${this.baseUrl}/api/feedback/${feedbackId}`)
+    const response = await fetch(`${this.baseUrl}/api/feedback/${feedbackId}`);
+    console.log('API: Response status:', response.status)
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('API: Error response:', errorText)
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  }
+
+  async addDiscussion(feedbackId: string, role: string, message: string): Promise<Feedback> {
+    const response = await fetch(`${this.baseUrl}/api/feedback/${feedbackId}/discussion`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ role, message }),
+    });
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
+    return response.json();
+  }
+
+  async markFeedbackResolved(feedbackId: string, resolved: boolean, resolvedBy: string): Promise<Feedback> {
+    const response = await fetch(`${this.baseUrl}/api/feedback/${feedbackId}/resolve`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ resolved, resolvedBy }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  }
+
+  // Export
+  async exportToPDF(projectId: string): Promise<Blob> {
+    const response = await fetch(`${this.baseUrl}/api/projects/${projectId}/export/pdf`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.blob();
+  }
+
+  async exportToJSON(projectId: string): Promise<Blob> {
+    const response = await fetch(`${this.baseUrl}/api/projects/${projectId}/export/json`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.blob();
+  }
+
+  // Export role-filtered PDF
+  async exportRoleFilteredPDF(projectId: string, role: string): Promise<Blob> {
+    const response = await fetch(`${this.baseUrl}/api/projects/${projectId}/export/pdf/${role}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.blob();
+  }
+
+  // Export role-filtered JSON
+  async exportRoleFilteredJSON(projectId: string, role: string): Promise<Blob> {
+    const response = await fetch(`${this.baseUrl}/api/projects/${projectId}/export/json/${role}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.blob();
+  }
+
+  // Health check
+  async healthCheck(): Promise<{ status: string; message: string }> {
+    const response = await fetch(`${this.baseUrl}/api/health`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
     return response.json();
   }
 }
