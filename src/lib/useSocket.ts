@@ -34,7 +34,8 @@ export const useSocket = ({ feedbackId, role }: UseSocketOptions) => {
 
   useEffect(() => {
     // Initialize socket connection
-    const newSocket = io('http://localhost:5000', {
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'
+    const newSocket = io(API_BASE_URL, {
       transports: ['websocket', 'polling']
     })
 
