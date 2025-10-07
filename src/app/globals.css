@@ -79,3 +79,161 @@ p, span, div, button, input, textarea, label {
   scrollbar-width: thin;
   scrollbar-color: rgba(100, 253, 0, 0.3) rgba(39, 39, 42, 0.3);
 }
+
+/* Responsive Design Utilities */
+@media (max-width: 640px) {
+  /* Mobile-specific styles */
+  .mobile-padding {
+    padding: 1rem;
+  }
+  
+  .mobile-text {
+    font-size: 0.875rem;
+  }
+  
+  .mobile-button {
+    padding: 0.75rem 1rem;
+    min-height: 44px; /* iOS touch target minimum */
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  /* Tablet-specific styles */
+  .tablet-padding {
+    padding: 1.5rem;
+  }
+}
+
+@media (min-width: 1025px) {
+  /* Desktop-specific styles */
+  .desktop-padding {
+    padding: 2rem;
+  }
+}
+
+/* Touch-friendly interactions */
+.touch-manipulation {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Improved focus states for accessibility */
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid #64FD00;
+  outline-offset: 2px;
+}
+
+/* Better text selection */
+::selection {
+  background-color: rgba(100, 253, 0, 0.3);
+  color: white;
+}
+
+/* Responsive typography */
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.5rem;
+  }
+  
+  h2 {
+    font-size: 1.25rem;
+  }
+  
+  h3 {
+    font-size: 1.125rem;
+  }
+}
+
+/* Improved button hover states for touch devices */
+@media (hover: hover) {
+  button:hover {
+    transform: translateY(-1px);
+  }
+}
+
+@media (hover: none) {
+  button:active {
+    transform: scale(0.98);
+  }
+}
+
+/* Container queries for better responsive behavior */
+@container (max-width: 400px) {
+  .container-sm {
+    padding: 0.5rem;
+  }
+}
+
+/* Improved image responsiveness */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Better form element sizing on mobile */
+@media (max-width: 640px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px; /* Prevents zoom on iOS */
+    min-height: 44px;
+  }
+}
+
+/* Enhanced Green Glow Effects */
+.green-glow {
+  box-shadow: 0 0 20px rgba(100, 253, 0, 0.4), 0 4px 16px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.green-glow-strong {
+  box-shadow: 0 0 25px rgba(100, 253, 0, 0.5), 0 4px 16px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.green-glow-subtle {
+  box-shadow: 0 0 15px rgba(100, 253, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Green accent border */
+.green-border {
+  border: 1px solid rgba(100, 253, 0, 0.3);
+  box-shadow: 0 0 0 1px rgba(100, 253, 0, 0.1);
+}
+
+/* Enhanced button hover effects */
+button[style*="backgroundColor: '#64FD00'"]:hover {
+  box-shadow: 0 0 30px rgba(100, 253, 0, 0.6), 0 6px 20px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+  transform: translateY(-2px);
+}
+
+/* Green accent backgrounds */
+.green-accent-bg {
+  background: linear-gradient(135deg, rgba(100, 253, 0, 0.08) 0%, rgba(0, 0, 0, 0.6) 100%);
+  border: 1px solid rgba(100, 253, 0, 0.2);
+  box-shadow: 0 0 20px rgba(100, 253, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Enhanced role selector glow */
+button[style*="backgroundColor: role.color"]:hover {
+  box-shadow: 0 0 30px rgba(100, 253, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Project card hover effects */
+.group:hover {
+  box-shadow: 0 0 25px rgba(100, 253, 0, 0.4), 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 0 30px rgba(100, 253, 0, 0.03), 0 0 0 1px rgba(100, 253, 0, 0.1) !important;
+}
+
+/* Enhanced scrollbar for green theme */
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, rgba(100, 253, 0, 0.4) 0%, rgba(100, 253, 0, 0.2) 100%);
+  border-radius: 4px;
+  border: 1px solid rgba(100, 253, 0, 0.3);
+  box-shadow: 0 0 10px rgba(100, 253, 0, 0.2);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, rgba(100, 253, 0, 0.6) 0%, rgba(100, 253, 0, 0.3) 100%);
+  box-shadow: 0 0 15px rgba(100, 253, 0, 0.4);
+}

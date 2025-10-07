@@ -103,6 +103,8 @@ export default function Page() {
   const [newProjectName, setNewProjectName] = useState('')
   const [newProjectDescription, setNewProjectDescription] = useState('')
   const [showNewProjectForm, setShowNewProjectForm] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -286,26 +288,32 @@ export default function Page() {
         backgroundImage: 'radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.02) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.03) 0%, transparent 50%), radial-gradient(circle at 40% 40%, rgba(120, 119, 198, 0.01) 0%, transparent 50%)'
       }}>
             {/* Header */}
-      <div className="backdrop-blur-md border-b border-zinc-700/50 px-6 py-4" style={{
+      <div className="backdrop-blur-md border-b border-zinc-700/50 px-3 sm:px-6 py-3 sm:py-4" style={{
         background: 'rgba(0, 0, 0, 0.4)',
         backgroundImage: 'linear-gradient(135deg, rgba(100, 253, 0, 0.03) 0%, rgba(0, 0, 0, 0.5) 100%)',
         boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 0 30px rgba(100, 253, 0, 0.02)'
       }}>
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1">
-            <div className="h-8 w-8 rounded-lg flex items-center justify-center">
-              <img className="h-9 w-20" src="/image.png" alt="Logo" />
-              </div>
-            <div>
-              <h1 className="font-semibold text-zinc-100">JURY</h1>
+          {/* Logo and Title */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="h-6 w-6 sm:h-8 sm:w-8 rounded-lg flex items-center justify-center">
+              <img className="h-6 w-12 sm:h-9 sm:w-20" src="/image.png" alt="Logo" />
+            </div>
+            <div className="hidden xs:block">
+              <h1 className="text-sm sm:text-base font-semibold text-zinc-100">JURY</h1>
               <p className="text-xs text-zinc-400">AI-Powered UI Analysis</p>
             </div>
+            <div className="xs:hidden">
+              <h1 className="text-sm font-semibold text-zinc-100">JURY</h1>
             </div>
+          </div>
 
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 text-sm">
+          {/* Mobile Menu Button */}
+          <div className="flex items-center gap-2 sm:gap-4">
+            {/* Connection Status - Hidden on very small screens */}
+            <div className="hidden sm:flex items-center gap-2 text-sm">
               <div className={cn(
-                "px-3 py-1.5 rounded-full border text-xs font-medium transition-all duration-300",
+                "px-2 sm:px-3 py-1 sm:py-1.5 rounded-full border text-xs font-medium transition-all duration-300",
                 isConnected ? "border-zinc-600/50 text-zinc-300" : "border-red-500/50 text-red-400"
               )} style={isConnected ? {
                 background: 'linear-gradient(135deg, rgba(100, 253, 0, 0.05) 0%, rgba(0, 0, 0, 0.8) 100%)',
@@ -314,62 +322,162 @@ export default function Page() {
                 background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(0, 0, 0, 0.8) 100%)',
                 boxShadow: '0 0 10px rgba(239, 68, 68, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
               }}>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 sm:gap-2">
                   <div className={cn(
                     "h-1.5 w-1.5 rounded-full",
                     isConnected ? "" : "bg-red-500"
                   )} style={isConnected ? {backgroundColor: '#64FD00'} : {}} />
-                  <span>
+                  <span className="hidden sm:inline">
                     {isConnected ? "Connected" : "Disconnected"}
+                  </span>
+                  <span className="sm:hidden">
+                    {isConnected ? "✓" : "✗"}
                   </span>
                 </div>
               </div>
             </div>
 
+            {/* Back Button */}
             {selectedProject && (
-                  <button 
+              <button 
                 onClick={() => setViewMode('home')}
-                className="w-10 h-10 flex items-center justify-center text-sm border border-zinc-600/50 text-black rounded-full transition-all duration-300 hover:scale-[1.02]"
+                className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-sm border border-zinc-600/50 text-black rounded-full transition-all duration-300 hover:scale-[1.02]"
                 style={{
                   backgroundColor: '#64FD00',
                   boxShadow: '0 0 15px rgba(100, 253, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.2)'
                 }}
-                  >
-                ← 
-                  </button>
-                  )}
+              >
+                <span className="text-xs sm:text-sm">←</span>
+              </button>
+            )}
+
+            {/* Mobile Menu Toggle */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="lg:hidden w-8 h-8 flex items-center justify-center text-zinc-300 hover:text-white transition-colors relative"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+              {projects && projects.length > 0 && (
+                <span className="absolute -top-1 -right-1 h-4 w-4 bg-emerald-500 text-black text-xs rounded-full flex items-center justify-center font-bold">
+                  {projects.length}
+                </span>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div className="lg:hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)}>
+          <div className="fixed right-0 top-0 h-full w-80 max-w-[85vw] bg-zinc-900 border-l border-zinc-700/50 shadow-2xl transform transition-transform duration-300 ease-out" onClick={(e) => e.stopPropagation()}>
+            <div className="p-4 border-b border-zinc-700/50">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-medium text-zinc-100">Menu</h3>
+                <button
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-white transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div className="p-4 space-y-4">
+              {/* Connection Status */}
+              <div className="flex items-center gap-2 text-sm">
+                <div className={cn(
+                  "px-3 py-2 rounded-full border text-xs font-medium transition-all duration-300",
+                  isConnected ? "border-zinc-600/50 text-zinc-300" : "border-red-500/50 text-red-400"
+                )} style={isConnected ? {
+                  background: 'linear-gradient(135deg, rgba(100, 253, 0, 0.05) 0%, rgba(0, 0, 0, 0.8) 100%)',
+                  boxShadow: '0 0 10px rgba(100, 253, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+                } : {
+                  background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, rgba(0, 0, 0, 0.8) 100%)',
+                  boxShadow: '0 0 10px rgba(239, 68, 68, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+                }}>
+                  <div className="flex items-center gap-2">
+                    <div className={cn(
+                      "h-1.5 w-1.5 rounded-full",
+                      isConnected ? "" : "bg-red-500"
+                    )} style={isConnected ? {backgroundColor: '#64FD00'} : {}} />
+                    <span>
+                      {isConnected ? "Connected" : "Disconnected"}
+                    </span>
+                  </div>
                 </div>
+              </div>
+              
+              {/* Quick Actions */}
+              <div className="space-y-3">
+                <button
+                  onClick={() => {
+                    setIsSidebarOpen(true)
+                    setIsMobileMenuOpen(false)
+                  }}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg border border-zinc-600/50 text-zinc-100 text-left transition-all duration-300 hover:scale-[1.02]"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(100, 100, 100, 0.05) 0%, rgba(0, 0, 0, 0.8) 100%)',
+                    boxShadow: '0 0 10px rgba(100, 100, 100, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
+                  }}
+                >
+                  <svg className="h-5 w-5" style={{color: '#64FD00'}} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                  </svg>
+                  <div>
+                    <div className="font-medium">View All Projects</div>
+                    <div className="text-xs text-zinc-400">{projects?.length || 0} projects</div>
+                  </div>
+                </button>
+                
+                {selectedProject && (
+                  <div className="text-sm text-zinc-400">Current: {selectedProject.name}</div>
+                )}
+                {feedback.length > 0 && (
+                  <div className="text-sm text-zinc-400">Active feedback: {feedback.length} items</div>
+                )}
+              </div>
             </div>
-            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
-      <div className="flex h-[calc(100vh-80px)]">
+      <div className="flex flex-col lg:flex-row h-[calc(100vh-70px)] sm:h-[calc(100vh-80px)]">
         {viewMode === 'home' && (
           <>
-            {/* Left Sidebar - Projects */}
-            <div className="w-80 backdrop-blur-md border-r border-zinc-700/50 flex flex-col" style={{
+            {/* Left Sidebar - Projects (Hidden on mobile by default) */}
+            <div className={cn(
+              "backdrop-blur-md border-r border-zinc-700/50 flex flex-col transition-all duration-300",
+              "hidden lg:flex lg:w-80",
+              "fixed lg:relative inset-y-0 left-0 z-40 w-80 max-w-[85vw] lg:max-w-none",
+              isSidebarOpen ? "translate-x-0" : "translate-x-[-100%] lg:translate-x-0"
+            )} style={{
               background: 'rgba(0, 0, 0, 0.3)',
               backgroundImage: 'linear-gradient(135deg, rgba(100, 253, 0, 0.02) 0%, rgba(0, 0, 0, 0.4) 100%)',
               boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 0 50px rgba(100, 253, 0, 0.03)'
             }}>
-              <div className="p-4 border-b border-zinc-700">
+              <div className="p-3 sm:p-4 border-b border-zinc-700">
                 <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-3">
-                    <svg className="h-5 w-5" style={{color: '#64FD00'}} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <svg className="h-4 w-4 sm:h-5 sm:w-5" style={{color: '#64FD00'}} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                     </svg>
-                    <h3 className="text-lg font-medium text-zinc-100">Projects</h3>
+                    <h3 className="text-base sm:text-lg font-medium text-zinc-100">Projects</h3>
                   </div>
                   <div className="flex items-center gap-2">
-                    <svg className="h-4 w-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="h-3 w-3 sm:h-4 sm:w-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                     </svg>
-                    <span className="text-sm text-zinc-400">{projects?.length || 0}</span>
+                    <span className="text-xs sm:text-sm text-zinc-400">{projects?.length || 0}</span>
                   </div>
                 </div>
             </div>
               
-              <div className="flex-1 overflow-y-auto p-4">
+              <div className="w-full overflow-y-auto p-3 sm:p-4">
                 {!projects || projects.length === 0 ? (
                   <div className="text-center py-8">
                     <div className="h-12 w-12 rounded-full bg-zinc-700 flex items-center justify-center mb-3 mx-auto">
@@ -379,19 +487,19 @@ export default function Page() {
                     <p className="text-xs text-zinc-500">Create your first project to get started</p>
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-2 sm:space-y-3">
                     {projects.map((project) => (
                       <div
                         key={project._id}
                         onClick={() => selectProject(project)}
-                        className="p-3 rounded-lg cursor-pointer transition-all duration-300 hover:scale-[1.02] backdrop-blur-sm border border-zinc-600/30"
+                        className="p-3 rounded-lg cursor-pointer transition-all duration-300 hover:scale-[1.02] backdrop-blur-sm border border-zinc-600/30 touch-manipulation"
                         style={{
                           background: 'rgba(0, 0, 0, 0.4)',
                           backgroundImage: 'linear-gradient(135deg, rgba(100, 253, 0, 0.04) 0%, rgba(0, 0, 0, 0.6) 100%)',
                           boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 0 20px rgba(100, 253, 0, 0.02)'
                         }}
                       >
-                        <div className="font-medium text-zinc-100 mb-1">{project.name}</div>
+                        <div className="font-medium text-zinc-100 mb-1 text-sm sm:text-base truncate">{project.name}</div>
                         <div className="text-xs text-zinc-400 mb-1">
                           {project.screenshots.length} screenshots
               </div>
@@ -406,38 +514,100 @@ export default function Page() {
             </div>
 
             {/* Main Content Area */}
-            <div className="flex-1 flex items-center justify-center p-8">
-              <div className="max-w-2xl w-full">
-                <div className="text-center mb-8">
-                  <div className="h-16 w-16 rounded-full bg-zinc-800 flex items-center justify-center mb-4 mx-auto">
-                    <EyeIcon className="h-8 w-8 text-zinc-400" />
+            <div className="w-full flex flex-col lg:items-center lg:justify-center p-4 sm:p-6 lg:p-8 min-h-0">
+              <div className="max-w-2xl w-full flex flex-col lg:block">
+                <div className="text-center mb-6 sm:mb-8">
+                  <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-zinc-800 flex items-center justify-center mb-3 sm:mb-4 mx-auto">
+                    <EyeIcon className="h-6 w-6 sm:h-8 sm:w-8 text-zinc-400" />
                 </div>
-                  <h2 className="text-2xl font-semibold text-zinc-100 mb-2">
+                  <h2 className="text-xl sm:text-2xl font-semibold text-zinc-100 mb-2">
                     Design Feedback Platform
                   </h2>
-                  <p className="text-zinc-400 max-w-md mx-auto">
+                  <p className="text-sm sm:text-base text-zinc-400 max-w-md mx-auto px-4 sm:px-0">
                     Upload design screenshots and get AI-powered feedback with coordinates, severity levels, and role-based discussions.
                   </p>
                 </div>
 
+                {/* Mobile Projects Summary */}
+                <div className="lg:hidden mb-6">
+                  <div className="backdrop-blur-md border border-zinc-700/50 rounded-xl p-4" style={{
+                    background: 'rgba(0, 0, 0, 0.4)',
+                    backgroundImage: 'linear-gradient(135deg, rgba(100, 253, 0, 0.05) 0%, rgba(0, 0, 0, 0.6) 100%)',
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 0 40px rgba(100, 253, 0, 0.03)'
+                  }}>
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <svg className="h-5 w-5" style={{color: '#64FD00'}} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                        </svg>
+                        <h3 className="text-lg font-medium text-zinc-100">Your Projects</h3>
+                      </div>
+                      <button
+                        onClick={() => setIsSidebarOpen(true)}
+                        className="px-3 py-2 text-black text-sm font-medium rounded-lg transition-all duration-300 hover:opacity-90"
+                        style={{
+                          backgroundColor: '#64FD00',
+                          boxShadow: '0 0 15px rgba(100, 253, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.2)'
+                        }}
+                      >
+                        View All
+                      </button>
+                    </div>
+                    {projects && projects.length > 0 ? (
+                      <div className="space-y-2">
+                        {projects.slice(0, 2).map((project) => (
+                          <div
+                            key={project._id}
+                            onClick={() => selectProject(project)}
+                            className="p-3 rounded-lg cursor-pointer transition-all duration-300 hover:scale-[1.02] backdrop-blur-sm border border-zinc-600/30 touch-manipulation"
+                            style={{
+                              background: 'rgba(0, 0, 0, 0.4)',
+                              backgroundImage: 'linear-gradient(135deg, rgba(100, 253, 0, 0.04) 0%, rgba(0, 0, 0, 0.6) 100%)',
+                              boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 0 20px rgba(100, 253, 0, 0.02)'
+                            }}
+                          >
+                            <div className="font-medium text-zinc-100 mb-1 text-sm truncate">{project.name}</div>
+                            <div className="text-xs text-zinc-400">{project.screenshots.length} screenshots</div>
+                          </div>
+                        ))}
+                        {projects.length > 2 && (
+                          <div className="text-xs text-zinc-400 text-center pt-2">
+                            +{projects.length - 2} more projects
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-center py-4">
+                        <div className="h-8 w-8 rounded-full bg-zinc-700 flex items-center justify-center mb-2 mx-auto">
+                          <svg className="h-4 w-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                          </svg>
+                        </div>
+                        <p className="text-xs text-zinc-400">No projects yet</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
                 {/* Create Project Section */}
-                <div className="backdrop-blur-md border border-zinc-700/50 rounded-xl p-6 max-w-md mx-auto" style={{
+                <div className="backdrop-blur-md border border-zinc-700/50 rounded-xl p-4 sm:p-6 w-full lg:max-w-md lg:mx-auto" style={{
                   background: 'rgba(0, 0, 0, 0.4)',
                   backgroundImage: 'linear-gradient(135deg, rgba(100, 253, 0, 0.05) 0%, rgba(0, 0, 0, 0.6) 100%)',
                   boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 0 40px rgba(100, 253, 0, 0.03)'
                 }}>
-                  <h3 className="text-lg font-medium text-zinc-100 mb-3">Create New Project</h3>
+                  <h3 className="text-base sm:text-lg font-medium text-zinc-100 mb-3">Create New Project</h3>
                   {!showNewProjectForm ? (
               <button 
                       onClick={() => setShowNewProjectForm(true)}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-3 text-black font-medium rounded-lg transition-all duration-300 hover:opacity-90 hover:scale-[1.02]"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 text-black font-medium rounded-lg transition-all duration-300 hover:opacity-90 hover:scale-[1.02] touch-manipulation"
                       style={{
                         backgroundColor: '#64FD00',
                         boxShadow: '0 0 20px rgba(100, 253, 0, 0.4), 0 4px 16px rgba(0, 0, 0, 0.2)'
                       }}
               >
                       <PlusIcon className="h-4 w-4" />
-                      Create New Project
+                      <span className="hidden xs:inline">Create New Project</span>
+                      <span className="xs:hidden">Create Project</span>
               </button>
                   ) : (
                     <div className="space-y-3">
@@ -446,22 +616,22 @@ export default function Page() {
                         placeholder="Project name"
                         value={newProjectName}
                         onChange={(e) => setNewProjectName(e.target.value)}
-                        className="w-full px-3 py-2 bg-zinc-700 border border-zinc-600 rounded-lg text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 text-sm"
+                        className="w-full px-3 py-3 sm:py-2 bg-zinc-700 border border-zinc-600 rounded-lg text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 text-sm sm:text-base"
                         style={{'--tw-ring-color': '#64FD00'} as React.CSSProperties}
                       />
                       <textarea
                         placeholder="Description (optional)"
                         value={newProjectDescription}
                         onChange={(e) => setNewProjectDescription(e.target.value)}
-                        className="w-full px-3 py-2 bg-zinc-700 border border-zinc-600 rounded-lg text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 text-sm"
+                        className="w-full px-3 py-3 sm:py-2 bg-zinc-700 border border-zinc-600 rounded-lg text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 text-sm sm:text-base"
                         style={{'--tw-ring-color': '#64FD00'} as React.CSSProperties}
-                        rows={2}
+                        rows={3}
                       />
-                      <div className="flex gap-2">
+                      <div className="flex flex-col sm:flex-row gap-2">
                       <button
                           onClick={createProject}
                           disabled={!newProjectName.trim() || isLoading}
-                          className="flex-1 px-3 py-2 disabled:bg-zinc-600 text-black font-medium rounded-lg transition-all duration-300 text-sm hover:opacity-90 hover:scale-[1.02]"
+                          className="flex-1 px-4 py-3 sm:px-3 sm:py-2 disabled:bg-zinc-600 text-black font-medium rounded-lg transition-all duration-300 text-sm sm:text-base hover:opacity-90 hover:scale-[1.02] touch-manipulation"
                           style={{
                             backgroundColor: '#64FD00',
                             boxShadow: !newProjectName.trim() || isLoading ? 'none' : '0 0 15px rgba(100, 253, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.2)'
@@ -471,7 +641,7 @@ export default function Page() {
                 </button>
                 <button 
                           onClick={() => setShowNewProjectForm(false)}
-                          className="px-4 py-2 border border-zinc-600/50 text-zinc-300 font-medium rounded-full transition-all duration-300 text-sm hover:scale-[1.02]"
+                          className="px-4 py-3 sm:py-2 border border-zinc-600/50 text-zinc-300 font-medium rounded-full transition-all duration-300 text-sm sm:text-base hover:scale-[1.02] touch-manipulation"
                           style={{
                             background: 'linear-gradient(135deg, rgba(100, 100, 100, 0.05) 0%, rgba(0, 0, 0, 0.8) 100%)',
                             boxShadow: '0 0 10px rgba(100, 100, 100, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
@@ -488,21 +658,79 @@ export default function Page() {
           </>
         )}
 
+        {/* Mobile Sidebar Overlay */}
+        {isSidebarOpen && (
+          <div className="lg:hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm" onClick={() => setIsSidebarOpen(false)}>
+            <div className="fixed left-0 top-0 h-full w-80 max-w-[85vw] bg-zinc-900 border-r border-zinc-700/50 shadow-2xl transform transition-transform duration-300 ease-out" onClick={(e) => e.stopPropagation()}>
+              <div className="p-4 border-b border-zinc-700/50">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-medium text-zinc-100">Projects</h3>
+                  <button
+                    onClick={() => setIsSidebarOpen(false)}
+                    className="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-white transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div className="w-full overflow-y-auto p-4">
+                {!projects || projects.length === 0 ? (
+                  <div className="text-center py-8">
+                    <div className="h-12 w-12 rounded-full bg-zinc-700 flex items-center justify-center mb-3 mx-auto">
+                      <svg className="h-6 w-6 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
+                    </div>
+                    <p className="text-sm text-zinc-400">No projects yet</p>
+                    <p className="text-xs text-zinc-500">Create your first project to get started</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {projects.map((project) => (
+                      <div
+                        key={project._id}
+                        onClick={() => {
+                          selectProject(project)
+                          setIsSidebarOpen(false)
+                        }}
+                        className="p-3 rounded-lg cursor-pointer transition-all duration-300 hover:scale-[1.02] backdrop-blur-sm border border-zinc-600/30 touch-manipulation"
+                        style={{
+                          background: 'rgba(0, 0, 0, 0.4)',
+                          backgroundImage: 'linear-gradient(135deg, rgba(100, 253, 0, 0.04) 0%, rgba(0, 0, 0, 0.6) 100%)',
+                          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 0 20px rgba(100, 253, 0, 0.02)'
+                        }}
+                      >
+                        <div className="font-medium text-zinc-100 mb-1 text-sm truncate">{project.name}</div>
+                        <div className="text-xs text-zinc-400 mb-1">{project.screenshots.length} screenshots</div>
+                        {project.description && (
+                          <div className="text-xs text-zinc-500 truncate">{project.description}</div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {viewMode === 'project' && selectedProject && (
-          <div className="flex-1 flex flex-col">
-            <div className="p-6 border-b border-zinc-700/50 backdrop-blur-md" style={{
+          <div className="w-full flex flex-col">
+            <div className="p-4 sm:p-6 border-b border-zinc-700/50 backdrop-blur-md" style={{
               background: 'rgba(0, 0, 0, 0.3)',
               backgroundImage: 'linear-gradient(135deg, rgba(100, 253, 0, 0.03) 0%, rgba(0, 0, 0, 0.5) 100%)',
               boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 0 30px rgba(100, 253, 0, 0.02)'
             }}>
-              <div className="flex items-center justify-between">
-              <div>
-                  <h2 className="text-2xl font-semibold text-zinc-100">{selectedProject.name}</h2>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex-1 min-w-0">
+                  <h2 className="text-xl sm:text-2xl font-semibold text-zinc-100 truncate">{selectedProject.name}</h2>
                   <p className="text-sm text-zinc-400">
                     {selectedProject.screenshots.length} screenshots uploaded
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 w-full sm:w-auto">
                       <input
                   ref={fileInputRef}
                   type="file"
@@ -513,17 +741,21 @@ export default function Page() {
                       <button
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isLoading}
-                    className="px-6 py-3 disabled:bg-zinc-700 text-black font-medium rounded-lg transition-colors flex items-center gap-2 hover:opacity-90"
-                    style={{backgroundColor: '#64FD00'}}
+                    className="flex-1 sm:flex-none px-4 sm:px-6 py-3 disabled:bg-zinc-700 text-black font-medium rounded-lg transition-all duration-300 flex items-center justify-center gap-2 hover:opacity-90 hover:scale-[1.02] touch-manipulation"
+                    style={{
+                      backgroundColor: '#64FD00',
+                      boxShadow: isLoading ? 'none' : '0 0 20px rgba(100, 253, 0, 0.4), 0 4px 16px rgba(0, 0, 0, 0.2)'
+                    }}
                   >
-                    <UploadIcon className="h-5 w-5" />
-                       
+                    <UploadIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+                    <span className="hidden xs:inline">Upload Screenshot</span>
+                    <span className="xs:hidden">Upload</span>
                       </button>
                     </div>
         </div>
       </div>
 
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="w-full overflow-y-auto p-4 sm:p-6">
               {selectedProject.screenshots.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-center">
                   <div className="h-20 w-20 rounded-full bg-zinc-800 flex items-center justify-center mb-6">
@@ -537,19 +769,22 @@ export default function Page() {
                   </p>
               <button
                     onClick={() => fileInputRef.current?.click()}
-                    className="px-6 py-3 text-black font-medium rounded-lg transition-colors flex items-center gap-2 hover:opacity-90"
-                    style={{backgroundColor: '#64FD00'}}
+                    className="px-6 py-3 text-black font-medium rounded-lg transition-all duration-300 flex items-center gap-2 hover:opacity-90 hover:scale-[1.02]"
+                    style={{
+                      backgroundColor: '#64FD00',
+                      boxShadow: '0 0 20px rgba(100, 253, 0, 0.4), 0 4px 16px rgba(0, 0, 0, 0.2)'
+                    }}
               >
                     <UploadIcon className="h-5 w-5" />
                     Upload Your First Screenshot
               </button>
             </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                   {selectedProject.screenshots.map((screenshot) => (
                     <div
                       key={screenshot.filename}
-                      className="rounded-xl overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02] group backdrop-blur-md border border-zinc-700/50"
+                      className="rounded-xl overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02] group backdrop-blur-md border border-zinc-700/50 touch-manipulation"
                       onClick={() => selectScreenshot(screenshot)}
                       style={{
                         background: 'rgba(0, 0, 0, 0.4)',
@@ -567,7 +802,7 @@ export default function Page() {
                           className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform"
                         />
                   </div>
-                      <div className="p-4">
+                      <div className="p-3 sm:p-4">
                         <div className="text-sm font-medium text-zinc-100 truncate mb-1">
                           {screenshot.originalName}
               </div>
@@ -584,13 +819,13 @@ export default function Page() {
         )}
 
         {viewMode === 'screenshot' && selectedScreenshot && (
-          <div className="flex h-full">
+          <div className="w-full h-full">
             {/* Main Content - Screenshot and Past Feedback */}
-            <div className="flex-1 flex flex-col">
+            <div className="w-full flex flex-col min-w-0 h-full">
 
-              <div className="flex-1 overflow-y-auto p-6">
+              <div className="w-full overflow-y-auto p-4 sm:p-6">
                 {/* Screenshot */}
-                <div className="mb-6">
+                <div className="mb-4 sm:mb-6">
                   <div className="backdrop-blur-md border border-zinc-700/50 rounded-xl overflow-hidden" style={{
                     background: 'rgba(0, 0, 0, 0.4)',
                     backgroundImage: 'linear-gradient(135deg, rgba(100, 253, 0, 0.04) 0%, rgba(0, 0, 0, 0.6) 100%)',
@@ -701,54 +936,55 @@ export default function Page() {
                 </div>
 
                 {/* Image Info and Download Options */}
-                <div className="mb-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className="px-4 py-3 rounded-full border border-zinc-600/50 text-zinc-300 transition-all duration-300" style={{
+                <div className="mb-4 sm:mb-6">
+                  <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
+                        <div className="px-3 sm:px-4 py-2 sm:py-3 rounded-full border border-zinc-600/50 text-zinc-300 transition-all duration-300 w-full sm:w-auto" style={{
                           background: 'linear-gradient(135deg, rgba(100, 253, 0, 0.05) 0%, rgba(0, 0, 0, 0.8) 100%)',
                           boxShadow: '0 0 10px rgba(100, 253, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
                         }}>
-                          <div className="flex items-center gap-3">
-                            <div className="h-2 w-2 rounded-full" style={{backgroundColor: '#64FD00'}} />
-                            <span className="text-lg font-medium text-zinc-100">
-                              {selectedScreenshot.originalName}
-                            </span>
-                            <span className="text-sm text-zinc-400">•</span>
-                            <span className="text-sm text-zinc-400">
-                              {feedback.length} feedback items
-                            </span>
-                            <span className="text-sm text-zinc-400">•</span>
-                            <span className="text-sm text-zinc-400">
-                              {selectedScreenshot.width} × {selectedScreenshot.height}
-                            </span>
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
+                            <div className="flex items-center gap-2">
+                              <div className="h-2 w-2 rounded-full" style={{backgroundColor: '#64FD00'}} />
+                              <span className="text-base sm:text-lg font-medium text-zinc-100 truncate">
+                                {selectedScreenshot.originalName}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 text-xs sm:text-sm text-zinc-400">
+                              <span>{feedback.length} feedback items</span>
+                              <span>•</span>
+                              <span>{selectedScreenshot.width} × {selectedScreenshot.height}</span>
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
                     {feedback.length > 0 && (
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full lg:w-auto">
                         <button
                           onClick={exportToPDF}
-                          className="px-4 py-2 text-black font-medium rounded-full transition-all duration-300 flex items-center gap-2 hover:opacity-90 hover:scale-[1.02]"
+                          className="px-3 sm:px-4 py-2 text-black font-medium rounded-full transition-all duration-300 flex items-center justify-center gap-2 hover:opacity-90 hover:scale-[1.02] touch-manipulation text-sm"
                           style={{
                             backgroundColor: '#64FD00',
-                            boxShadow: '0 0 20px rgba(100, 253, 0, 0.4), 0 4px 16px rgba(0, 0, 0, 0.2)'
+                            boxShadow: '0 0 25px rgba(100, 253, 0, 0.5), 0 4px 16px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
                           }}
                         >
-                          <DownloadIcon className="h-4 w-4" />
-                          Export {currentRole === 'all' ? 'All' : currentRole.replace('_', ' ')} PDF
+                          <DownloadIcon className="h-3 w-3 sm:h-4 sm:w-4" />
+                          <span className="hidden xs:inline">Export {currentRole === 'all' ? 'All' : currentRole.replace('_', ' ')} PDF</span>
+                          <span className="xs:hidden">PDF</span>
                         </button>
                         <button
                           onClick={exportToJSON}
-                          className="px-4 py-2 text-black font-medium rounded-full transition-all duration-300 flex items-center gap-2 hover:opacity-90 hover:scale-[1.02]"
+                          className="px-3 sm:px-4 py-2 text-black font-medium rounded-full transition-all duration-300 flex items-center justify-center gap-2 hover:opacity-90 hover:scale-[1.02] touch-manipulation text-sm"
                           style={{
                             backgroundColor: '#64FD00',
-                            boxShadow: '0 0 20px rgba(100, 253, 0, 0.4), 0 4px 16px rgba(0, 0, 0, 0.2)'
+                            boxShadow: '0 0 25px rgba(100, 253, 0, 0.5), 0 4px 16px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
                           }}
                         >
-                          <DownloadIcon className="h-4 w-4" />
-                          Export {currentRole === 'all' ? 'All' : currentRole.replace('_', ' ')} JSON
+                          <DownloadIcon className="h-3 w-3 sm:h-4 sm:w-4" />
+                          <span className="hidden xs:inline">Export {currentRole === 'all' ? 'All' : currentRole.replace('_', ' ')} JSON</span>
+                          <span className="xs:hidden">JSON</span>
                         </button>
                       </div>
                     )}
@@ -757,8 +993,8 @@ export default function Page() {
 
                 {/* Feedback Section */}
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-medium text-zinc-100">Feedback Analysis</h3>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                    <h3 className="text-base sm:text-lg font-medium text-zinc-100">Feedback Analysis</h3>
                     {feedback.length > 0 && (
                       <div className="text-sm text-zinc-400">
                         {feedback.length} issues found
@@ -767,39 +1003,42 @@ export default function Page() {
                   </div>
 
                   {/* Role Selector */}
-                  <div className="mb-8">
-                    <div className="flex flex-wrap items-center gap-3">
-                      <span className="text-zinc-300 font-medium">View as:</span>
-                      {[
-                        { id: 'all', label: 'All Roles', icon: '👥', color: '#64FD00' },
-                        { id: 'designer', label: 'Designer', icon: '🎨', color: '#64FD00' },
-                        { id: 'developer', label: 'Developer', icon: '💻', color: '#3b82f6' },
-                        { id: 'product_manager', label: 'Product Manager', icon: '📊', color: '#8b5cf6' },
-                        { id: 'reviewer', label: 'Reviewer', icon: '👤', color: '#f59e0b' }
-                      ].map((role) => (
-                        <button
-                          key={role.id}
-                          onClick={() => setCurrentRole(role.id as UserRole)}
-                          className={cn(
-                            "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-200",
-                            currentRole === role.id
-                              ? "text-black shadow-lg scale-105"
-                              : "text-zinc-300 hover:text-white border border-zinc-600 hover:border-zinc-500"
-                          )}
-                          style={currentRole === role.id ? {
-                            backgroundColor: role.color,
-                            boxShadow: `0 0 20px ${role.color}40`
-                          } : {}}
-                        >
-                          <span>{role.icon}</span>
-                          {role.label}
-                          {role.id !== 'all' && currentRole === role.id && (
-                            <span className="bg-black/20 px-2 py-0.5 rounded-full text-xs">
-                              {filteredFeedback.length}
-                            </span>
-                          )}
-                        </button>
-                      ))}
+                  <div className="mb-6 sm:mb-8">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                      <span className="text-zinc-300 font-medium text-sm">View as:</span>
+                      <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
+                        {[
+                          { id: 'all', label: 'All Roles', icon: '👥', color: '#64FD00' },
+                          { id: 'designer', label: 'Designer', icon: '🎨', color: '#64FD00' },
+                          { id: 'developer', label: 'Developer', icon: '💻', color: '#3b82f6' },
+                          { id: 'product_manager', label: 'Product Manager', icon: '📊', color: '#8b5cf6' },
+                          { id: 'reviewer', label: 'Reviewer', icon: '👤', color: '#f59e0b' }
+                        ].map((role) => (
+                          <button
+                            key={role.id}
+                            onClick={() => setCurrentRole(role.id as UserRole)}
+                            className={cn(
+                              "flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 touch-manipulation",
+                              currentRole === role.id
+                                ? "text-black shadow-lg scale-105"
+                                : "text-zinc-300 hover:text-white border border-zinc-600 hover:border-zinc-500"
+                            )}
+                            style={currentRole === role.id ? {
+                              backgroundColor: role.color,
+                              boxShadow: `0 0 25px ${role.color}50, inset 0 1px 0 rgba(255, 255, 255, 0.2)`
+                            } : {}}
+                          >
+                            <span className="text-sm">{role.icon}</span>
+                            <span className="hidden xs:inline">{role.label}</span>
+                            <span className="xs:hidden">{role.label.split(' ')[0]}</span>
+                            {role.id !== 'all' && currentRole === role.id && (
+                              <span className="bg-black/20 px-1.5 py-0.5 rounded-full text-xs">
+                                {filteredFeedback.length}
+                              </span>
+                            )}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
 
@@ -814,15 +1053,38 @@ export default function Page() {
                           : `No Feedback for ${currentRole.replace('_', ' ')}`
                         }
                       </h4>
-                      <p className="text-zinc-400">
+                      <p className="text-zinc-400 mb-6">
                         {currentRole === 'all'
-                          ? 'Generate AI feedback using the sidebar to get detailed analysis of this screenshot.'
+                          ? 'Generate AI feedback to get detailed analysis of this screenshot.'
                           : 'Try switching to "All Roles" to see all feedback items.'
                         }
                       </p>
+                      {currentRole === 'all' && (
+                        <button
+                          onClick={() => generateFeedback(selectedScreenshot)}
+                          disabled={isLoading}
+                          className="px-6 py-3 disabled:bg-zinc-600 text-black font-medium rounded-lg transition-all duration-300 flex items-center justify-center gap-2 hover:opacity-90 hover:scale-[1.02] touch-manipulation mx-auto"
+                          style={{
+                            backgroundColor: '#64FD00',
+                            boxShadow: isLoading ? 'none' : '0 0 25px rgba(100, 253, 0, 0.5), 0 4px 16px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
+                          }}
+                        >
+                          {isLoading ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black"></div>
+                              <span>Generating...</span>
+                            </>
+                          ) : (
+                            <>
+                              <EyeIcon className="h-5 w-5" />
+                              <span>Generate AI Feedback</span>
+                            </>
+                          )}
+                        </button>
+                      )}
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
                       {filteredFeedback.map((item) => (
                         <div key={item._id} className={cn(
                           "rounded-xl p-6 transition-all duration-300 hover:scale-[1.02] backdrop-blur-md border border-zinc-700/50",
@@ -877,12 +1139,16 @@ export default function Page() {
                               <button
                                 onClick={() => toggleFeedbackResolved(item._id, item.resolved)}
                                 className={cn(
-                                  "p-2 rounded-lg transition-colors",
+                                  "p-2 rounded-lg transition-all duration-300 hover:scale-[1.05]",
                                   item.resolved 
                                     ? "hover:opacity-80" 
                                     : "bg-zinc-700 text-zinc-400 hover:bg-zinc-600 hover:text-zinc-300"
                                 )}
-                                style={item.resolved ? {backgroundColor: '#64FD00', color: 'black'} : {}}
+                                style={item.resolved ? {
+                                  backgroundColor: '#64FD00', 
+                                  color: 'black',
+                                  boxShadow: '0 0 15px rgba(100, 253, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
+                                } : {}}
                                 title={item.resolved ? "Mark as unresolved" : "Mark as resolved"}
                               >
                                 {item.resolved ? (
@@ -1104,11 +1370,14 @@ export default function Page() {
                               </div>
                               <button
                                 onClick={() => window.open(`/discussion?feedbackId=${item._id}`, '_blank')}
-                                className="px-4 py-2 text-black text-sm rounded transition-colors flex items-center gap-2 hover:opacity-90"
-                                style={{backgroundColor: '#64FD00'}}
+                                className="px-4 py-2 text-black text-sm rounded transition-all duration-300 flex items-center gap-2 hover:opacity-90 hover:scale-[1.02]"
+                                style={{
+                                  backgroundColor: '#64FD00',
+                                  boxShadow: '0 0 15px rgba(100, 253, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2)'
+                                }}
                               >
                                 <ChatBubbleLeftRightIcon className="h-4 w-4" />
-                                
+                                <span className="hidden xs:inline">Discuss</span>
                               </button>
                             </div>
                           </div>
@@ -1120,62 +1389,6 @@ export default function Page() {
             </div>
           </div>
 
-            {/* Sidebar - Generate New Feedback (only for screenshots with no feedback) */}
-            {feedback.length === 0 && (
-              <div className="w-80 backdrop-blur-md border-l border-zinc-700/50 flex flex-col" style={{
-                background: 'rgba(0, 0, 0, 0.3)',
-                backgroundImage: 'linear-gradient(135deg, rgba(100, 253, 0, 0.02) 0%, rgba(0, 0, 0, 0.4) 100%)',
-                boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 0 50px rgba(100, 253, 0, 0.03)'
-              }}>
-                <div className="p-4 border-b border-zinc-700">
-                  <h3 className="text-lg font-medium text-zinc-100">Generate AI Feedback</h3>
-                  <p className="text-sm text-zinc-400">Get detailed analysis of this screenshot</p>
-                  </div>
-
-                <div className="flex-1 p-4">
-                  <div className="backdrop-blur-sm border border-zinc-600/30 rounded-lg p-4 mb-4" style={{
-                    background: 'rgba(0, 0, 0, 0.4)',
-                    backgroundImage: 'linear-gradient(135deg, rgba(100, 253, 0, 0.04) 0%, rgba(0, 0, 0, 0.6) 100%)',
-                    boxShadow: '0 4px 16px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 0 20px rgba(100, 253, 0, 0.02)'
-                  }}>
-                    <div className="text-sm text-zinc-300 mb-2">Screenshot Info:</div>
-                    <div className="text-xs text-zinc-400">
-                      <div>Name: {selectedScreenshot.originalName}</div>
-                      <div>Size: {selectedScreenshot.width} × {selectedScreenshot.height}</div>
-                      <div>Status: No feedback yet</div>
-                </div>
-                  </div>
-
-                  <button
-                    onClick={() => generateFeedback(selectedScreenshot)}
-                    disabled={isLoading}
-                    className="w-full px-4 py-3 disabled:bg-zinc-600 text-black font-medium rounded-lg transition-colors flex items-center justify-center gap-2 hover:opacity-90"
-                    style={{backgroundColor: '#64FD00'}}
-                  >
-                    {isLoading ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-black"></div>
-                        Generating...
-                      </>
-                    ) : (
-                      <>
-                        <EyeIcon className="h-5 w-5" />
-                        Generate AI Feedback
-                      </>
-                    )}
-                  </button>
-
-                  {isLoading && (
-                    <div className="mt-4 p-3 bg-zinc-700 rounded-lg">
-                      <div className="text-sm text-zinc-300 mb-2">AI Analysis in Progress...</div>
-                      <div className="text-xs text-zinc-400">
-                        Our AI is examining your screenshot and will provide detailed feedback with coordinates, severity levels, and recommendations.
-                  </div>
-                </div>
-              )}
-                  </div>
-                </div>
-              )}
             </div>
           )}
         </div>

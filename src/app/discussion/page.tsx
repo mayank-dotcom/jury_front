@@ -83,6 +83,7 @@ function DiscussionPageContent() {
   const [newMessage, setNewMessage] = useState('')
   const [selectedRole, setSelectedRole] = useState<'designer' | 'developer' | 'product_manager' | 'reviewer'>('designer')
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const roleOptions = [
     { value: 'designer', label: 'Designer', color: 'rgb(168, 85, 247)' },
@@ -289,14 +290,138 @@ function DiscussionPageContent() {
         background: 'radial-gradient(ellipse at center, rgba(25, 25, 25, 1) 0%, rgba(5, 5, 5, 1) 100%)',
         backgroundImage: 'radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.02) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.03) 0%, transparent 50%), radial-gradient(circle at 40% 40%, rgba(120, 119, 198, 0.01) 0%, transparent 50%)'
       }}>
-      <div className="flex h-screen">
+      <div className="flex flex-col lg:flex-row h-screen">
+        {/* Mobile Menu Toggle */}
+        <div className="lg:hidden p-3 border-b border-zinc-700/50 backdrop-blur-md" style={{
+          background: 'rgba(0, 0, 0, 0.3)',
+          backgroundImage: 'linear-gradient(135deg, rgba(100, 253, 0, 0.03) 0%, rgba(0, 0, 0, 0.5) 100%)',
+          boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 0 30px rgba(100, 253, 0, 0.02)'
+        }}>
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => router.back()}
+              className="p-2 hover:bg-zinc-700 rounded-lg transition-colors"
+            >
+              <ArrowLeftIcon className="h-5 w-5" />
+            </button>
+            <h2 className="text-lg font-medium text-zinc-100">Discussion</h2>
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="p-2 hover:bg-zinc-700 rounded-lg transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Menu Overlay */}
+        {isMobileMenuOpen && (
+          <div className="lg:hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)}>
+            <div className="fixed right-0 top-0 h-full w-80 max-w-[85vw] bg-zinc-900 border-l border-zinc-700/50 shadow-2xl transform transition-transform duration-300 ease-out" onClick={(e) => e.stopPropagation()}>
+              <div className="p-4 border-b border-zinc-700/50">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-medium text-zinc-100">Feedback Details</h3>
+                  <button
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-8 h-8 flex items-center justify-center text-zinc-400 hover:text-white transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div className="p-4 overflow-y-auto h-full">
+                {/* Mobile Feedback Details Content */}
+                {feedback && (
+                  <div className="space-y-4">
+                    <div className="backdrop-blur-sm border border-zinc-600/30 rounded-xl p-4" style={{
+                      background: 'rgba(0, 0, 0, 0.4)',
+                      backgroundImage: 'linear-gradient(135deg, rgba(100, 253, 0, 0.05) 0%, rgba(0, 0, 0, 0.6) 100%)',
+                      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 0 40px rgba(100, 253, 0, 0.03)'
+                    }}>
+                      {/* Severity Badge */}
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <div className={cn(
+                            "w-6 h-6 rounded-full flex items-center justify-center",
+                            feedback.severity === 'high' ? "bg-red-500" : 
+                            feedback.severity === 'medium' ? "bg-yellow-500" : "bg-green-500"
+                          )}>
+                            {getSeverityIcon(feedback.severity)}
+                          </div>
+                          <div>
+                            <div className="text-sm font-medium text-zinc-100 capitalize">{feedback.severity}</div>
+                            <div className="text-xs text-zinc-400">{feedback.category}</div>
+                          </div>
+                        </div>
+                        <div className={cn(
+                          "px-2 py-1 rounded text-xs font-medium",
+                          getSeverityColor(feedback.severity)
+                        )}>
+                          {feedback.severity.toUpperCase()}
+                        </div>
+                      </div>
+
+                      {/* Issue Description */}
+                      <div className="mb-3">
+                        <div className="text-sm font-medium text-zinc-100 mb-1">Issue:</div>
+                        <div className="text-sm text-zinc-300 bg-zinc-600/50 p-3 rounded">
+                          {feedback.issue}
+                        </div>
+                      </div>
+
+                      {/* Recommendation */}
+                      <div className="mb-3">
+                        <div className="text-sm font-medium text-zinc-100 mb-1">Recommendation:</div>
+                        <div className="text-sm text-zinc-300 bg-zinc-600/50 p-3 rounded">
+                          {feedback.recommendation}
+                        </div>
+                      </div>
+
+                      {/* Location */}
+                      <div className="mb-3">
+                        <div className="text-sm font-medium text-zinc-100 mb-1">Location:</div>
+                        <div className="text-sm text-zinc-400 bg-zinc-600/30 p-2 rounded">
+                          ({feedback.coordinates.x}, {feedback.coordinates.y})
+                        </div>
+                      </div>
+
+                      {/* Role Tags */}
+                      <div>
+                        <div className="text-sm font-medium text-zinc-100 mb-2">Involved Roles:</div>
+                        <div className="flex flex-wrap gap-2">
+                          {feedback.roleTags.map((role) => (
+                            <div
+                              key={role}
+                              className="px-2 py-1 rounded text-xs font-medium text-white"
+                              style={{backgroundColor: getRoleColor(role)}}
+                            >
+                              {getRoleInitial(role)}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Left Panel - Feedback Details */}
-         <div className="w-80 backdrop-blur-md border-r border-zinc-700/50 flex flex-col" style={{
+         <div className={cn(
+           "backdrop-blur-md border-r border-zinc-700/50 flex flex-col transition-all duration-300",
+           "hidden lg:flex lg:w-80"
+         )} style={{
            background: 'rgba(0, 0, 0, 0.3)',
            backgroundImage: 'linear-gradient(135deg, rgba(100, 253, 0, 0.02) 0%, rgba(0, 0, 0, 0.4) 100%)',
            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 0 50px rgba(100, 253, 0, 0.03)'
          }}>
-           <div className="flex-1 overflow-y-auto p-4">
+           <div className="flex-1 overflow-y-auto p-3 lg:p-4">
              <div className="mt-8 mb-6">
                <div className="px-4 py-2 rounded-full border border-zinc-600/50 text-zinc-300 text-lg font-semibold transition-all duration-300 inline-flex items-center gap-3" style={{
                  background: 'linear-gradient(135deg, rgba(100, 253, 0, 0.05) 0%, rgba(0, 0, 0, 0.8) 100%)',
@@ -388,9 +513,9 @@ function DiscussionPageContent() {
         </div>
 
         {/* Right Panel - Chat Interface */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col min-w-0">
           {/* Chat Header */}
-          <div className="p-4 border-b border-zinc-700/50 backdrop-blur-md" style={{
+          <div className="hidden lg:block p-4 border-b border-zinc-700/50 backdrop-blur-md" style={{
             background: 'rgba(0, 0, 0, 0.3)',
             backgroundImage: 'linear-gradient(135deg, rgba(100, 253, 0, 0.03) 0%, rgba(0, 0, 0, 0.5) 100%)',
             boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 0 30px rgba(100, 253, 0, 0.02)'
@@ -440,7 +565,7 @@ function DiscussionPageContent() {
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div className="flex-1 overflow-y-auto p-3 lg:p-4 space-y-3 lg:space-y-4">
             {allMessages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center">
                 <ChatBubbleLeftRightIcon className="h-16 w-16 text-zinc-400 mb-4" />
@@ -490,16 +615,16 @@ function DiscussionPageContent() {
           </div>
 
           {/* Message Input */}
-          <div className="p-4 border-t border-zinc-700/50 backdrop-blur-md" style={{
+          <div className="p-3 lg:p-4 border-t border-zinc-700/50 backdrop-blur-md" style={{
             background: 'rgba(0, 0, 0, 0.3)',
             backgroundImage: 'linear-gradient(135deg, rgba(100, 253, 0, 0.03) 0%, rgba(0, 0, 0, 0.5) 100%)',
             boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 0 30px rgba(100, 253, 0, 0.02)'
           }}>
-            <div className="flex gap-3">
-              <div className="relative" ref={dropdownRef}>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="relative w-full sm:w-auto" ref={dropdownRef}>
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                  className="px-4 py-2 border border-zinc-600/50 rounded-full text-zinc-100 text-sm transition-all duration-300 flex items-center gap-2 min-w-[140px] justify-between"
+                  className="w-full sm:w-auto px-3 sm:px-4 py-2 border border-zinc-600/50 rounded-full text-zinc-100 text-sm transition-all duration-300 flex items-center gap-2 min-w-[120px] sm:min-w-[140px] justify-between touch-manipulation"
                   style={{
                     background: 'linear-gradient(135deg, rgba(100, 100, 100, 0.05) 0%, rgba(0, 0, 0, 0.8) 100%)',
                     boxShadow: '0 0 10px rgba(100, 100, 100, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1)'
@@ -561,9 +686,9 @@ function DiscussionPageContent() {
                   onChange={handleInputChange}
                   onKeyPress={handleKeyPress}
                   placeholder="Type your message..."
-                  className="w-full px-3 py-2 pr-12 bg-zinc-700 border border-zinc-600 rounded-lg text-zinc-100 placeholder-zinc-400 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  rows={1}
-                  style={{ minHeight: '40px', maxHeight: '120px' }}
+                  className="w-full px-3 py-3 sm:py-2 pr-12 bg-zinc-700 border border-zinc-600 rounded-lg text-zinc-100 placeholder-zinc-400 text-sm sm:text-base resize-none focus:outline-none focus:ring-2 focus:ring-emerald-500 touch-manipulation"
+                  rows={2}
+                  style={{ minHeight: '44px', maxHeight: '120px' }}
                   disabled={!socketConnected}
                 />
               </div>
@@ -571,14 +696,14 @@ function DiscussionPageContent() {
               <button
                 onClick={sendMessage}
                 disabled={!newMessage.trim() || isLoading || !socketConnected}
-                className="px-4 py-2 disabled:bg-zinc-600 text-black font-medium rounded-lg transition-all duration-300 flex items-center gap-2 hover:opacity-90 hover:scale-[1.02]"
+                className="w-full sm:w-auto px-4 py-3 sm:py-2 disabled:bg-zinc-600 text-black font-medium rounded-lg transition-all duration-300 flex items-center justify-center gap-2 hover:opacity-90 hover:scale-[1.02] touch-manipulation"
                 style={{
                   backgroundColor: '#64FD00',
                   boxShadow: (!newMessage.trim() || isLoading || !socketConnected) ? 'none' : '0 0 15px rgba(100, 253, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.2)'
                 }}
               >
                 <SendIcon className="h-4 w-4" />
-                
+                <span className="hidden xs:inline">Send</span>
               </button>
             </div>
             
