@@ -1,7 +1,6 @@
 "use client"
 import { useState, useEffect } from "react"
 import axios from "axios"
-import { cn } from '@/lib/utils'
 
 interface Ability {
     name: string;
@@ -124,7 +123,7 @@ return (
                         </svg>
                     </div>
                     <h2 className="text-xl sm:text-2xl font-semibold text-zinc-100 mb-2">
-                        Ditto's Abilities
+                        Dittos Abilities
                     </h2>
                     <p className="text-sm sm:text-base text-zinc-400 max-w-md mx-auto px-4 sm:px-0">
                         Explore the abilities of the transform Pokemon from the Pokemon API.
